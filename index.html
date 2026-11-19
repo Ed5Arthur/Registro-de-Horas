@@ -310,7 +310,7 @@ table.t td:last-child { text-align: right; font-weight: 700; white-space: nowrap
 
 /* Abas */
 .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); }
-.tabbar nav { max-width: 560px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); }
+.tabbar nav { max-width: 560px; margin: 0 auto; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; }
 .tabbar button { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 4.1rem; padding: 8px 2px 10px; border: 0; background: none; color: var(--muted); font-weight: 700; font-size: .8rem; }
 .tabbar button .ic { width: 1.65rem; height: 1.65rem; }
 .tabbar button[aria-current="page"] { color: var(--brand-ink); }
@@ -348,6 +348,8 @@ body.has-sheet .toast { bottom: calc(6.6rem + env(safe-area-inset-bottom)); }
 ol.steps { margin: 0; padding-left: 1.3rem; display: grid; gap: 8px; }
 .about { color: var(--muted); font-size: .85rem; text-align: center; padding: 6px 12px 0; }
 .timer { border: 2px solid var(--brand); }
+.card.setup { border: 2px solid var(--brand); }
+.card.setup .k { color: var(--brand-ink); }
 .timer-top { display: flex; align-items: center; gap: 8px; font-weight: 700; }
 .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--muted); }
 .is-running .dot { background: #E5484D; animation: pulse 1.4s infinite; }
@@ -518,8 +520,8 @@ function freshState() {
     v: 1, profile: null, plan: [], entries: [], months: {},
     report: { hours: null, studies: true, details: false, goal: false },
     timer: { running: false, startedAt: 0, accMs: 0, date: null, firstStart: 0 },
-    settings: { yearMode: 'servico', font: 1, theme: 'auto', wa: '', installDismissed: false },
-    lastBackup: 0, celebrated: {}
+    settings: { yearMode: 'servico', font: 1, theme: 'auto', wa: '', installDismissed: false, pubReport: false },
+    lastBackup: 0, celebrated: {}, setup: { done: false, at: 0, start: null }
   };
 }
 function normalize(s) {
@@ -529,6 +531,7 @@ function normalize(s) {
   o.settings = Object.assign(f.settings, o.settings || {});
   o.months = o.months && typeof o.months === 'object' ? o.months : {};
   o.celebrated = o.celebrated && typeof o.celebrated === 'object' ? o.celebrated : {};
+  o.setup = Object.assign(f.setup, o.setup && typeof o.setup === 'object' ? o.setup : {});
   if (o.profile && typeof o.profile === 'object') o.profile = { name: String(o.profile.name || ''), g: o.profile.g === 'f' ? 'f' : 'm', createdAt: o.profile.createdAt || Date.now() };
   else o.profile = null;
   o.entries = (Array.isArray(o.entries) ? o.entries : []).filter(e => e && /^\d{4}-\d{2}-\d{2}$/.test(e.date)).map(e => ({
@@ -577,11 +580,20 @@ function setPlan(ym, role, goal, only) {
   else p = p.filter(x => x.from < ym);
   if (!p.some(x => x.from < ym)) p.push({ from: '0000-01', role: before.role, goal: before.goal });
   p.push({ from: ym, role, goal });
-  p.sort((a, b) => (a.from < b.from ? -1 : a.from > b.from ? 1 : 0));
+  S.plan = compactPlan(p);
+}
+function compactPlan(p) {
+  p = p.slice().sort((a, b) => (a.from < b.from ? -1 : a.from > b.from ? 1 : 0));
   const out = [];
   for (const x of p) { const l = out[out.length - 1]; if (l && l.role === x.role && l.goal === x.goal) continue; out.push(x); }
-  S.plan = out;
+  return out;
 }
+function setStartMonth(start) {
+  const cur = ymOf(todayStr()), now = planFor(cur);
+  const future = S.plan.filter(x => x.from > cur && x.from > start);
+  S.plan = compactPlan([{ from: '0000-01', role: 'publicador', goal: 0 }, { from: start, role: 'regular', goal: now.role === 'regular' ? now.goal : 50 }].concat(future));
+}
+function reportTabOn() { return planFor(ymOf(todayStr())).role !== 'publicador' || !!S.settings.pubReport; }
 function goalHint(role) {
   if (role === 'publicador') return 'Publicadores não precisam informar horas no relatório. A meta serve só para você acompanhar (escolha "Sem meta" se preferir).';
   if (role === 'auxiliar') return 'Escolha 15 horas só nos meses em que os anciãos anunciarem essa opção.';
@@ -638,10 +650,9 @@ function monthlyAverage(n) {
   return { min: ms.reduce((a, ym) => a + monthTotal(ym), 0) / ms.length, count: ms.length };
 }
 function serviceYearStats(ym) {
-  const ms = serviceYearMonths(ym);
-  const done = ms.filter(m => m <= ym).reduce((a, m) => a + monthTotal(m), 0);
-  const req = ms.filter(m => planFor(m).role === 'regular').length * ROLES.regular.req * 60;
-  return { ms, done, req, sy: serviceYearOf(ym) };
+  const ms = serviceYearMonths(ym), reg = ms.filter(m => planFor(m).role === 'regular');
+  const done = reg.filter(m => m <= ym).reduce((a, m) => a + monthTotal(m), 0);
+  return { ms, reg, done, req: reg.length * ROLES.regular.req * 60, sy: serviceYearOf(ym) };
 }
 function timerElapsed() { const t = S.timer; return (t.accMs || 0) + (t.running ? Date.now() - t.startedAt : 0); }
 
@@ -747,6 +758,9 @@ function render() {
   const v = $('#view'), tb = $('#tabbar');
   if (!S.profile) { tb.hidden = true; v.innerHTML = renderWelcome(); ensureTick(); return; }
   tb.hidden = false;
+  const repOn = reportTabOn();
+  $('#tabbar [data-to="relatorio"]').hidden = !repOn;
+  if (route === 'relatorio' && !repOn) { route = 'inicio'; hist('replaceState', { r: 'inicio' }, 'inicio'); }
   document.querySelectorAll('#tabbar [data-to]').forEach(b => { if (b.dataset.to === route) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
   let h = demo ? `<section class="banner warn demo">${ic('eye')}<div><span>Você está vendo um <b>exemplo</b>. Nada aqui fica salvo.</span><button class="btn btn-primary small" data-act="demo-exit">Começar o meu</button></div></section>` : '';
   h += route === 'historico' ? renderHistory() : route === 'relatorio' ? renderReport() : route === 'ajustes' ? renderSettings() : renderHome();
@@ -810,6 +824,7 @@ function renderHome() {
   const cin = carryIn(cur);
   let h = `<header class="hello"><div class="brandmark">${ic('logo')}Minha Pregação</div><h1>${greeting()}, ${esc(firstName(p.name))}!</h1><p class="muted">${cap(dateLong(t))}</p></header>`;
   h += homeBanners(prev);
+  if (!demo && !S.setup.done) h += setupCardHtml();
   h += `<section class="hero" aria-label="Horas de ${monthLabel(cur, false)}">
     <div class="hero-top"><span class="k">${cap(monthLabel(cur, false))}</span><button class="pill" data-act="open-service">${esc(roleLabel(plan.role))}${plan.goal ? ` · meta ${plan.goal}h` : ''}${ic('pencil', 'sm')}</button></div>
     <div><div class="big">${fmtHM(total)}</div>${goalMin ? `<div class="of">de ${plan.goal}h da meta do mês</div>` : ''}</div>
@@ -831,24 +846,49 @@ function renderHome() {
   else h += `<section class="banner">${ic('info')}<div><b>Comece por aqui</b><span>Sempre que voltar da pregação, toque no botão azul <b>Registrar pregação</b>. Se preferir, ligue o cronômetro quando sair.</span><button class="link" data-act="backfill">Já pregou nos meses anteriores? Lance essas horas aqui</button></div></section>`;
   return h;
 }
+const SU = { step: 'ask', start: null };
+function setupCardHtml() {
+  const cur = ymOf(todayStr()), plan = planFor(cur), sy = serviceYearOf(cur), syStart = `${sy - 1}-09`;
+  let h = `<section class="card setup" aria-label="Pergunta do começo"><span class="k">Só aparece desta vez</span>`;
+  if (plan.role === 'regular' && SU.step === 'ask') {
+    h += `<h2>Desde quando você é ${roleLabel('regular').toLowerCase()}?</h2>
+      <p>Isso serve para calcular o requisito do ano. O ano de serviço vai de setembro a agosto, e quem começa no meio dele faz só a parte proporcional das 600 horas.</p>
+      <div class="opts">${optBtn('su-reg', 'new', 'Comecei neste ano de serviço', `De ${monthLabel(syStart)} para cá.`, false)}${optBtn('su-reg', 'old', `Já era antes de ${monthLabel(syStart)}`, 'Então o requisito deste ano é de 600 horas.', false)}</div>`;
+  } else if (plan.role === 'regular' && SU.step === 'month') {
+    const ms = serviceYearMonths(cur).filter(m => m <= cur);
+    const n = SU.start ? serviceYearMonths(cur).filter(m => m >= SU.start).length : 0;
+    h += `<h2>Em que mês você começou?</h2><div class="quick" role="group" aria-label="Mês em que começou">${ms.map(m => `<button class="qchip" data-act="su-month" data-ym="${m}" aria-pressed="${SU.start === m}">${cap(monthLabel(m, false))}</button>`).join('')}</div>
+      ${SU.start ? `<p>Então o requisito deste ano de serviço é de <b>${n * 50} horas</b> (${n} ${n > 1 ? 'meses' : 'mês'} × 50h). A partir de setembro de ${sy}, se continuar, passa a ser 600 horas.</p><button class="btn btn-primary" data-act="su-month-ok">${ic('check')}Está certo</button>` : ''}
+      <button class="btn btn-ghost small" data-act="su-back">${ic('chev-l')}Voltar</button>`;
+  } else {
+    h += `<h2>Você tem horas de pregação que ainda não anotou?</h2>
+      <p>Se você já pregou nos meses anteriores e está começando a usar o app agora, dá para lançar essas horas. Assim o total do ano, os gráficos e a média ficam certos.</p>
+      <div class="opts">${optBtn('su-hours', 'yes', 'Sim, quero lançar agora', 'Abre a lista dos meses anteriores.', false)}${optBtn('su-hours', 'no', 'Não, vou começar a anotar agora', 'Os meses anteriores ficam em branco.', false)}</div>`;
+  }
+  return h + '</section>';
+}
+function finishSetup(extra) { S.setup = Object.assign({ done: true, at: Date.now(), start: null }, extra || {}); save(); SU.step = 'ask'; SU.start = null; }
 function homeBanners(prev) {
   let h = '';
   if (!storageOk && !demo) h += `<section class="banner warn">${ic('alert')}<div><b>${inFrame ? 'Nesta visualização os dados podem não ficar salvos.' : 'Atenção: este navegador não está guardando os dados.'}</b><span>${inFrame ? 'Para usar de verdade, abra o app no navegador do celular e instale.' : 'Abra o app no Chrome ou no Safari, fora da aba anônima, para não perder os registros.'}</span></div></section>`;
-  if (new Date().getDate() <= 10 && monthEntries(prev).length && !(S.months[prev] && S.months[prev].sentAt)) h += `<section class="banner">${ic('send')}<div><b>Já enviou o relatório de ${monthLabel(prev, false)}?</b><button class="btn btn-primary small" data-act="r-goto" data-ym="${prev}">Ver e enviar o relatório</button></div></section>`;
+  if (reportTabOn() && new Date().getDate() <= 10 && monthEntries(prev).length && !(S.months[prev] && S.months[prev].sentAt)) h += `<section class="banner">${ic('send')}<div><b>Já enviou o relatório de ${monthLabel(prev, false)}?</b><button class="btn btn-primary small" data-act="r-goto" data-ym="${prev}">Ver e enviar o relatório</button></div></section>`;
   if (deferredPrompt && !S.settings.installDismissed && !isStandalone()) h += `<section class="banner">${ic('phone-dl')}<div><b>Quer o app na tela do celular?</b><span>Assim ele abre com um toque, até sem internet.</span><div class="row2"><button class="btn btn-primary small" data-act="install">Instalar</button><button class="btn btn-secondary small" data-act="install-dismiss">Agora não</button></div></div></section>`;
   return h;
 }
 function yearCardHtml(cur) {
   const y = serviceYearStats(cur);
   if (!y.req) return '';
-  const doneBefore = y.ms.filter(m => m < cur).reduce((a, m) => a + monthTotal(m), 0);
-  const left = y.ms.filter(m => m >= cur).length, last = y.ms[11];
+  const doneBefore = y.reg.filter(m => m < cur).reduce((a, m) => a + monthTotal(m), 0);
+  const left = y.reg.filter(m => m >= cur).length, last = y.ms[11];
   const per = left ? Math.max(0, y.req - doneBefore) / left : 0;
+  const prop = y.reg.length >= 12 ? '' : y.reg[0] !== y.ms[0]
+    ? `<p class="hint">Como você começou em ${monthLabel(y.reg[0], false)}, o requisito deste ano é proporcional: ${y.req / 60}h (${y.reg.length} ${y.reg.length > 1 ? 'meses' : 'mês'} × 50h). Se continuar, no próximo ano de serviço passa a ser 600h.</p>`
+    : `<p class="hint">O requisito deste ano conta só os meses como pioneiro regular: ${y.req / 60}h.</p>`;
   return `<section class="card"><h2>${ic('target')}Ano de serviço ${y.sy - 1}/${y.sy}</h2>
     <div class="sum-line"><span class="sum-big">${fmtHM(y.done)}</span><span class="muted">de ${y.req / 60}h</span></div>
     ${meterHtml(y.done, y.req)}
     <p>${y.done >= y.req ? 'Requisito do ano alcançado!' : `Para chegar nas ${y.req / 60}h até ${monthLabel(last, false)}, faça mais ou menos <b>${Math.ceil(per / 60)}h por mês</b> (de ${monthLabel(cur, false)} até ${monthLabel(last, false)}).`}</p>
-    <p class="hint">${Math.round(y.done / y.req * 100)}% do ano · setembro de ${y.sy - 1} a agosto de ${y.sy}</p>
+    ${prop}<p class="hint">${Math.round(y.done / y.req * 100)}% do ano · setembro de ${y.sy - 1} a agosto de ${y.sy}</p>
     <button class="link" data-act="backfill">Lançar horas de meses anteriores</button></section>`;
 }
 function timerHtml() {
@@ -1105,7 +1145,10 @@ function renderSettings() {
     <div class="field"><span class="lbl">Você é</span><div class="seg" role="group" aria-label="Você é"><button data-act="set-g" data-g="m" aria-pressed="${p.g === 'm'}">Irmão</button><button data-act="set-g" data-g="f" aria-pressed="${p.g === 'f'}">Irmã</button></div></div></section>`;
   h += `<section class="card"><h2>${ic('target')}Serviço e meta</h2><div class="svc"><b>${esc(roleLabel(plan.role))}</b><span>${plan.goal ? `Meta de ${plan.goal} horas por mês` : 'Sem meta de horas'}</span></div>
     <button class="btn btn-secondary" data-act="open-service">${ic('pencil')}Mudar serviço ou meta</button>
-    <p class="hint">Dá para mudar só um mês (por exemplo, quando for pioneiro auxiliar) ou deste mês em diante.</p></section>`;
+    <p class="hint">Dá para mudar só um mês (por exemplo, quando for pioneiro auxiliar) ou de um mês em diante.</p>
+    <button class="link" data-act="setup-redo">Refazer a pergunta do começo (desde quando serve e horas não anotadas)</button></section>`;
+  if (plan.role === 'publicador') h += `<section class="card"><h2>${ic('send')}Aba Relatório</h2><p>Publicador não precisa informar horas, por isso a aba Relatório fica escondida. Se quiser mandar o relatório (participação e estudos) pelo WhatsApp com o app, é só mostrar a aba.</p>
+    <div class="seg" role="group" aria-label="Aba Relatório"><button data-act="pub-report" data-v="0" aria-pressed="${!S.settings.pubReport}">Esconder</button><button data-act="pub-report" data-v="1" aria-pressed="${!!S.settings.pubReport}">Mostrar</button></div></section>`;
   h += `<section class="card"><h2>${ic('calendar')}Como contar o ano</h2><div class="opts">${optBtn('year-mode', 'servico', 'Ano de serviço', 'De setembro a agosto.', S.settings.yearMode !== 'civil')}${optBtn('year-mode', 'civil', 'Ano normal', 'De janeiro a dezembro.', S.settings.yearMode === 'civil')}</div></section>`;
   h += `<section class="card"><h2>${ic('eye')}Aparência</h2>
     <div class="field"><span class="lbl">Tamanho da letra</span><div class="seg" role="group" aria-label="Tamanho da letra">${[[1, 'Normal'], [1.15, 'Grande'], [1.3, 'Maior']].map(x => `<button data-act="font" data-v="${x[0]}" aria-pressed="${S.settings.font === x[0]}">${x[1]}</button>`).join('')}</div></div>
@@ -1203,10 +1246,11 @@ function studentsHtml(D) {
 }
 function serviceSheetHtml() {
   const c = sheetCtx, ym = c.ym, g = S.profile ? S.profile.g : 'm';
-  let b = `<p class="muted">Vale a partir de ${monthLabel(ym)}.</p>`;
-  b += `<section class="field"><h2 class="q">Como você serve?</h2><div class="opts">${ROLE_ORDER.map(r => optBtn('svc-role', r, roleLabel(r, g), ROLES[r].desc, c.role === r)).join('')}</div></section>`;
+  const cur = ymOf(todayStr());
+  let b = `<section class="field"><h2 class="q">Como você serve?</h2><div class="opts">${ROLE_ORDER.map(r => optBtn('svc-role', r, roleLabel(r, g), ROLES[r].desc, c.role === r)).join('')}</div></section>`;
   if (c.role === 'auxiliar') b += `<section class="field"><h2 class="q">Meta do pioneiro auxiliar</h2><div class="seg" role="group" aria-label="Meta do pioneiro auxiliar"><button data-act="svc-aux" data-v="30" aria-pressed="${c.goal === 30}">30 horas</button><button data-act="svc-aux" data-v="15" aria-pressed="${c.goal === 15}">15 horas</button></div><p class="hint">Use 15 horas só nos meses em que os anciãos anunciarem essa opção, como na época da Celebração, em campanhas especiais ou na visita do superintendente de circuito.</p></section>`;
   b += `<section class="field"><h2 class="q">Meta de horas por mês</h2>${goalStepper('svc-goal', c.goal)}<p class="hint">${goalHint(c.role)}</p></section>`;
+  b += `<section class="field"><h2 class="q">A partir de qual mês?</h2><div class="pnav"><button class="icon-btn" data-act="svc-ym" data-d="-1" aria-label="Mês anterior"${ym > ymAdd(cur, -36) ? '' : ' disabled'}>${ic('chev-l')}</button><div class="pnav-t"><b>${cap(monthLabel(ym))}</b><span>${ym === cur ? 'Este mês' : ym < cur ? 'Mês que já passou' : 'Mês que ainda vai chegar'}</span></div><button class="icon-btn" data-act="svc-ym" data-d="1" aria-label="Próximo mês"${ym < ymAdd(cur, 12) ? '' : ' disabled'}>${ic('chev-r')}</button></div></section>`;
   b += `<section class="field"><h2 class="q">Vale para</h2><div class="opts">${optBtn('svc-scope', 'from', `De ${monthLabel(ym, false)} em diante`, 'Os próximos meses também usam esta meta.', !c.only)}${optBtn('svc-scope', 'only', `Só ${monthLabel(ym)}`, 'Depois volta a ser como era antes.', c.only)}</div></section>`;
   return sheetFrame('Serviço e meta', b, `<button class="btn btn-primary" data-act="svc-save">${ic('check')}Salvar</button>`);
 }
@@ -1332,6 +1376,7 @@ function buildDemo() {
   const st = freshState();
   st.profile = { name: 'Maria Souza', g: 'f', createdAt: Date.now() };
   st.plan = [{ from: '0000-01', role: 'regular', goal: 50 }];
+  st.setup = { done: true, at: Date.now(), start: null };
   st.settings.font = S.settings.font; st.settings.theme = S.settings.theme;
   let seed = 20261118;
   const rnd = () => { seed = (seed * 48271) % 2147483647; return seed / 2147483647; };
@@ -1421,6 +1466,19 @@ const A = {
   theme: el => { S.settings.theme = el.dataset.v; save(); render(); },
   backup: () => doBackup(),
   backfill: () => backfillDialog(),
+  'su-reg': el => { if (el.dataset.v === 'new') { SU.step = 'month'; SU.start = null; } else SU.step = 'hours'; render(); },
+  'su-month': el => { SU.start = el.dataset.ym; render(); },
+  'su-month-ok': () => { if (!SU.start) return; setStartMonth(SU.start); SU.step = 'hours'; save(); render(); },
+  'su-back': () => { SU.step = 'ask'; SU.start = null; render(); },
+  'su-hours': el => {
+    const start = S.setup.start || SU.start || null;
+    finishSetup({ start });
+    render();
+    if (el.dataset.v === 'yes') backfillDialog(); else toast('Tudo certo! É só ir anotando a pregação.');
+  },
+  'setup-redo': () => { S.setup = { done: false, at: 0, start: null }; SU.step = 'ask'; SU.start = null; save(); tabTo('inicio'); window.scrollTo(0, 0); },
+  'pub-report': el => { S.settings.pubReport = el.dataset.v === '1'; save(); render(); toast(S.settings.pubReport ? 'A aba Relatório apareceu lá embaixo.' : 'A aba Relatório foi escondida.'); },
+  'svc-ym': el => { const c = sheetCtx, cur = ymOf(todayStr()), n = ymAdd(c.ym, +el.dataset.d); if (n >= ymAdd(cur, -36) && n <= ymAdd(cur, 12)) { c.ym = n; renderSheet(); } },
   restore: () => {
     if (inFrame) dialog({ title: 'Restaurar uma cópia', html: '<p>Escolha o arquivo da cópia ou cole o texto dela.</p>', actions: [{ label: 'Escolher arquivo', kind: 'btn-primary', fn: () => $('#file-restore').click() }, { label: 'Colar o texto', fn: pasteDialog }, { label: 'Cancelar', kind: 'btn-ghost' }] });
     else $('#file-restore').click();
