@@ -1,0 +1,18 @@
+MINHA PREGAÇÃO: como colocar no ar e instalar
+
+1) Descompacte este arquivo .zip no celular (o app Arquivos do Google faz isso).
+2) Entre no github.com, crie um repositório público (ex.: minha-pregacao)
+   e use "Add file" > "Upload files" para enviar TODOS os arquivos desta pasta,
+   direto na pasta principal (sem subpastas):
+   index.html, manifest.json, sw.js, icon-192.png, icon-512.png,
+   icon-maskable-512.png e apple-touch-icon.png
+3) No repositório: Settings > Pages > Branch "main" e pasta "/ (root)" > Save.
+4) Em 1 ou 2 minutos o app fica em:
+   https://SEU-USUARIO.github.io/minha-pregacao/
+5) Abra esse endereço no celular e instale:
+   - Android (Chrome): toque em "Instalar" no aviso do app, ou nos três pontinhos > "Instalar app".
+   - iPhone (Safari): Compartilhar > "Adicionar à Tela de Início".
+
+Também funciona na Vercel: importe o mesmo repositório.
+Cada pessoa que instalar tem os próprios dados, guardados só no celular dela.
+Para trocar de celular: Ajustes > Fazer cópia de segurança, e no celular novo Restaurar uma cópia.
