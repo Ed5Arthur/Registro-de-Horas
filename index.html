@@ -408,6 +408,7 @@ body.has-map { overflow: hidden; }
 .mp-lbl.sel { background: #1D5FBF; color: #fff; border-color: #fff; }
 .mp-lbl.dim { opacity: .75; }
 .mp-draft { fill: rgba(217, 72, 15, .2); stroke: none; }
+.mp-draft-done { fill: rgba(217, 72, 15, .22); stroke: #D9480F; stroke-width: 3; stroke-linejoin: round; }
 .mp-draft-line { fill: none; stroke: #D9480F; stroke-width: 3.5; stroke-linejoin: round; stroke-linecap: round; }
 .mp-draft-close { stroke: #D9480F; stroke-width: 2.5; stroke-dasharray: 7 6; }
 .mp-vert { fill: #fff; stroke: #D9480F; stroke-width: 3; }
@@ -1684,14 +1685,19 @@ function renderTerritory() {
   return h;
 }
 function terrDraft(t) {
-  return t ? { id: t.id, num: t.num, name: t.name, notes: t.notes, link: t.link, photos: t.photos.map(id => ({ id })), err: '', saving: false }
-    : { id: null, num: '', name: '', notes: '', link: '', photos: [], err: '', saving: false };
+  return t ? { id: t.id, num: t.num, name: t.name, notes: t.notes, link: t.link, photos: t.photos.map(id => ({ id })), area: t.area.map(p => p.slice()), err: '', saving: false }
+    : { id: null, num: '', name: '', notes: '', link: '', photos: [], area: [], err: '', saving: false };
 }
 function terrSheetHtml() {
   const D = sheetCtx;
   let b = `<section class="field"><label class="lbl" for="t-num">Número do território</label><input class="txt" id="t-num" data-in="t-num" value="${esc(D.num)}" placeholder="Ex.: 12" autocomplete="off" maxlength="20" inputmode="text"></section>`;
   b += `<section class="field"><label class="lbl" for="t-name">Nome ou bairro <span class="opt">(opcional)</span></label><input class="txt" id="t-name" data-in="t-name" value="${esc(D.name)}" placeholder="Ex.: Vila Nova, quadras 3 a 7" maxlength="120" autocomplete="off"></section>`;
-  b += `<section class="field"><h2 class="q">Foto do mapa</h2><p class="hint">Tire uma foto do cartão do território ou escolha uma foto da galeria.</p>
+  const na = (D.area || []).length;
+  b += `<section class="field"><h2 class="q">Área no mapa <span class="opt">(opcional)</span></h2>
+    <button class="mini" data-act="terr-draw" data-minimap="draft" aria-label="${na ? 'Mudar a área do território no mapa' : 'Marcar a área do território no mapa'}"><span class="mp"></span><span class="map-zoom">${ic('pin', 'sm')}${na ? 'Toque para mudar a área' : 'Toque para marcar a área'}</span></button>
+    <p class="hint">${na ? `Área marcada com ${na} cantos.` : 'Toque no mapa e marque os cantos do território. Assim ele aparece no mapa dos territórios e dá para abrir o caminho até ele no Google Maps.'}</p>
+    ${na ? `<button class="link" data-act="terr-area-del">Tirar a área do mapa</button>` : ''}</section>`;
+  b += `<section class="field"><h2 class="q">Foto do mapa <span class="opt">(opcional)</span></h2><p class="hint">Tire uma foto do cartão do território ou escolha uma foto da galeria.</p>
     ${D.photos.length ? `<div class="thumbs">${D.photos.map((ph, i) => `<div class="thumb"><img ${ph.src ? `src="${ph.src}"` : `data-photo="${esc(ph.id)}"`} alt="Foto ${i + 1} do mapa"><button class="btn btn-danger small" data-act="terr-photo-del" data-i="${i}">${ic('trash', 'sm')}Apagar foto</button></div>`).join('')}</div>` : ''}
     ${D.photos.length < 4 ? `<div class="row2"><button class="btn btn-secondary" data-act="terr-photo" data-src="camera">${ic('camera')}Tirar foto</button><button class="btn btn-secondary" data-act="terr-photo" data-src="gallery">${ic('image')}Da galeria</button></div>` : '<p class="hint">Cabem até 4 fotos por território.</p>'}</section>`;
   b += `<section class="field"><label class="lbl" for="t-link">Link do mapa <span class="opt">(opcional)</span></label><input class="txt" id="t-link" data-in="t-link" type="url" inputmode="url" value="${esc(D.link)}" placeholder="Cole aqui o link do Google Maps" autocomplete="off"></section>`;
@@ -1715,7 +1721,7 @@ async function saveTerr() {
   if (!t) t = { id: uid(), num, name: '', notes: '', link: '', photos: [], area: [], createdAt: Date.now(), updatedAt: 0 };
   for (const ph of D.photos) if (ph.isNew) await photoPut(ph.id, ph.src);
   for (const pid of t.photos) if (!D.photos.some(ph => ph.id === pid)) await photoDel(pid);
-  Object.assign(t, { num, name: String(D.name || '').trim().slice(0, 120), notes: String(D.notes || '').trim().slice(0, 1000), link: safeLink(D.link), photos: D.photos.map(ph => ph.id), updatedAt: Date.now() });
+  Object.assign(t, { num, name: String(D.name || '').trim().slice(0, 120), notes: String(D.notes || '').trim().slice(0, 1000), link: safeLink(D.link), photos: D.photos.map(ph => ph.id), area: normArea(D.area), updatedAt: Date.now() });
   if (isNew) { S.territories.push(t); if (route === 'territorios') afterSheet = () => { T.sel = t.id; openPage('territorio', { tid: t.id }); }; }
   save();
   closeSheet();
@@ -2225,14 +2231,28 @@ function initMiniMaps(root) {
   (root || document).querySelectorAll('[data-minimap]').forEach(box => {
     if (box.dataset.ready) return;
     box.dataset.ready = '1';
-    const t = terrById(box.dataset.minimap), el = $('.mp', box);
-    if (!hasArea(t) || !el) return;
+    const id = box.dataset.minimap, isDraft = id === 'draft', el = $('.mp', box);
+    const area = isDraft ? ((sheetCtx && sheetCtx.area) || []) : ((terrById(id) || {}).area || []);
+    if (!el || (!isDraft && area.length < 3)) return;
     const mm = makeMap(el, {});
     if (!tilesOk()) el.classList.add('nomap');
-    const poly = svgEl('polygon', 'mp-area sel'), pts = t.area.map(p => [lng2x(p[1]), lat2y(p[0])]);
-    mm.svg.appendChild(poly);
-    mm.onRender = q => poly.setAttribute('points', pts.map(p => q.toScreen(p[0], p[1]).map(v => v.toFixed(1)).join(',')).join(' '));
-    mm.fit(t.area, 26, 18);
+    const shapes = [];
+    if (isDraft) S.territories.forEach(t => { if (hasArea(t) && t.id !== (sheetCtx && sheetCtx.id)) shapes.push({ pts: t.area, cls: 'mp-area dim' }); });
+    if (area.length >= 3) shapes.push({ pts: area, cls: isDraft ? 'mp-draft-done' : 'mp-area sel' });
+    const polys = shapes.map(sh => { const poly = svgEl('polygon', sh.cls); mm.svg.appendChild(poly); return { poly, n: sh.pts.map(p => [lng2x(p[1]), lat2y(p[0])]) }; });
+    mm.onRender = q => polys.forEach(x => x.poly.setAttribute('points', x.n.map(p => q.toScreen(p[0], p[1]).map(v => v.toFixed(1)).join(',')).join(' ')));
+    if (area.length >= 3) { mm.fit(area, 26, 18); MINIS.push(mm); return; }
+    const lc = linkCoords(sheetCtx && sheetCtx.link), others = S.territories.filter(hasArea).reduce((a, t) => a.concat(t.area), []), mv = S.settings.mapView;
+    if (lc) mm.setView(lc[0], lc[1], 16);
+    else if (others.length) mm.fit(others, 20, 16);
+    else if (mv) mm.setView(mv.lat, mv.lng, Math.max(mv.z, 13));
+    else {
+      mm.setView(MAP_HOME.lat, MAP_HOME.lng, MAP_HOME.z);
+      if (navigator.geolocation) geoState().then(st => {
+        if (st !== 'granted') return;
+        navigator.geolocation.getCurrentPosition(pos => { if (!mm.dead && el.isConnected) mm.setView(pos.coords.latitude, pos.coords.longitude, 15); }, () => { /* fica no Brasil */ }, { maximumAge: 300000, timeout: 10000 });
+      });
+    }
     MINIS.push(mm);
   });
 }
@@ -2242,7 +2262,7 @@ const M = { open: false, mode: 'view', sel: null, near: null, terrId: null, num:
 function openMap(mode, o) {
   if (M.open || V.open) return;
   o = o || {};
-  Object.assign(M, { open: true, probe: null, probing: false, mode, sel: o.sel || null, near: null, terrId: o.terrId || null, num: o.num || '', pts: (o.pts || []).map(p => p.slice()), orig: JSON.stringify(o.pts || []), undo: [], dirty: false, dragging: false, me: null, items: [], sp: null, note: null, after: '', locating: false, wantCenter: false });
+  Object.assign(M, { open: true, probe: null, probing: false, draft: !!o.draft, mode, sel: o.sel || null, near: null, terrId: o.terrId || null, num: o.num || '', pts: (o.pts || []).map(p => p.slice()), orig: JSON.stringify(o.pts || []), undo: [], dirty: false, dragging: false, me: null, items: [], sp: null, note: null, after: '', locating: false, wantCenter: false });
   hist('pushState', Object.assign({}, history.state || {}, { mapv: true, d: curDepth() + 1 }), (location.hash || '#inicio').slice(1));
   renderMapShell();
 }
@@ -2253,9 +2273,14 @@ function mapBack() {
 function closeMapUI() {
   if (!M.open) return;
   if (M.mode === 'draw' && M.dirty && JSON.stringify(M.pts) !== M.orig) {
-    const t = terrById(M.terrId);
-    if (t && M.pts.length >= 3) { t.area = normArea(M.pts); t.updatedAt = Date.now(); save(); M.after = `Área do território ${t.num} salva no mapa.`; }
-    else if (t) M.after = 'A área não mudou. Para marcar, toque em pelo menos 3 cantos.';
+    if (M.draft) {
+      if (sheet === 'terr-edit' && sheetCtx && M.pts.length >= 3) { sheetCtx.area = normArea(M.pts); M.after = 'Área marcada. Agora é só tocar em Salvar.'; }
+      else M.after = 'A área não mudou. Para marcar, toque em pelo menos 3 cantos.';
+    } else {
+      const t = terrById(M.terrId);
+      if (t && M.pts.length >= 3) { t.area = normArea(M.pts); t.updatedAt = Date.now(); save(); M.after = `Área do território ${t.num} salva no mapa.`; }
+      else if (t) M.after = 'A área não mudou. Para marcar, toque em pelo menos 3 cantos.';
+    }
   }
   saveMapView();
   M.open = false;
@@ -2269,7 +2294,7 @@ function closeMapUI() {
 }
 function renderMapShell() {
   const mapped = S.territories.filter(hasArea).length;
-  const head = M.mode === 'draw' ? [`Território ${esc(M.num)}`, 'Marque a área no mapa']
+  const head = M.mode === 'draw' ? [M.num ? `Território ${esc(M.num)}` : 'Novo território', 'Marque a área no mapa']
     : M.mode === 'pick' ? ['Qual território?', 'Toque no território onde você pregou']
     : ['Mapa dos territórios', `${mapped} ${mapped === 1 ? 'território' : 'territórios'} no mapa`];
   document.body.classList.add('has-map');
@@ -2452,7 +2477,7 @@ function mapInitialView() {
   if (M.mode === 'draw') {
     if (M.pts.length >= 2) { m.fit(M.pts, 60, 18); return; }
     if (M.pts.length === 1) { m.setView(M.pts[0][0], M.pts[0][1], 17); return; }
-    const lc = linkCoords((terrById(M.terrId) || {}).link);
+    const lc = linkCoords(M.draft ? sheetCtx && sheetCtx.link : (terrById(M.terrId) || {}).link);
     if (lc) { m.setView(lc[0], lc[1], 17); return; }
     if (all.length) { m.fit(all, 48, 16); return; }
     if (mv) { m.setView(mv.lat, mv.lng, Math.max(mv.z, 15)); return; }
@@ -2679,6 +2704,12 @@ const A = {
   'map-terr': el => openMap('view', { sel: el.dataset.id }),
   'map-draw': el => { const t = terrById(el.dataset.id); if (!t) return; if (!inFrame && !rawKey()) { noKeyDialog(); return; } openMap('draw', { terrId: t.id, num: t.num, pts: t.area }); },
   'map-pick-open': () => openMap('pick', { sel: sheetCtx && sheetCtx.terr }),
+  'terr-draw': () => { const D = sheetCtx; if (!D) return; if (!inFrame && !rawKey()) { noKeyDialog(); return; } openMap('draw', { draft: true, terrId: D.id, num: String(D.num || '').trim(), pts: D.area || [] }); },
+  'terr-area-del': () => {
+    dialog({ title: 'Tirar a área do mapa?', html: '<p>O território continua com as fotos e as anotações. Só a área sai do mapa.</p>', actions: [
+      { label: 'Sim, tirar do mapa', kind: 'btn-danger', fn: () => { if (sheetCtx) { sheetCtx.area = []; renderSheet(); toast('A área saiu do mapa. Toque em Salvar para guardar.'); } } },
+      { label: 'Não' }] });
+  },
   'map-close': () => mapBack(),
   'map-zoom': el => { if (M.map) M.map.zoomTo(Math.round(M.map.z) + (+el.dataset.d > 0 ? 1 : -1)); },
   'map-locate': () => startGeo(true),
@@ -2699,6 +2730,12 @@ const A = {
   'map-done': () => {
     const t = terrById(M.terrId);
     if (M.pts.length >= 3 || !M.dirty || JSON.stringify(M.pts) === M.orig) { mapBack(); return; }
+    if (M.draft && !M.pts.length && M.orig !== '[]') {
+      dialog({ title: 'Tirar a área do mapa?', html: '<p>O território continua com as fotos e as anotações. Só a área sai do mapa.</p>', actions: [
+        { label: 'Sim, tirar do mapa', kind: 'btn-danger', fn: () => { if (sheetCtx) sheetCtx.area = []; M.dirty = false; M.after = 'A área saiu do mapa. Toque em Salvar para guardar.'; mapBack(); } },
+        { label: 'Não, voltar' }] });
+      return;
+    }
     if (!M.pts.length && hasArea(t)) {
       dialog({ title: `Tirar o território ${esc(t.num)} do mapa?`, html: '<p>O território continua guardado com as fotos e as anotações. Só a área sai do mapa.</p>', actions: [
         { label: 'Sim, tirar do mapa', kind: 'btn-danger', fn: () => { t.area = []; t.updatedAt = Date.now(); save(); M.dirty = false; M.after = `O território ${t.num} saiu do mapa.`; mapBack(); } },
