@@ -134,6 +134,7 @@ b, strong { font-weight: 700; }
 .big-cta { min-height: 4.2rem; font-size: 1.2rem; border-radius: 18px; }
 .danger-text { color: var(--danger); }
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.row2.go { grid-template-columns: 3fr 2fr; }
 .link { background: none; border: 0; padding: 0; color: var(--brand-ink); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; text-align: left; }
 .icon-btn { width: 3.2rem; height: 3.2rem; border-radius: 50%; border: 2px solid var(--line); background: var(--surface); color: var(--ink); display: inline-grid; place-items: center; flex: none; padding: 0; }
 .icon-btn:disabled { opacity: .3; cursor: default; }
@@ -346,6 +347,31 @@ body.has-sheet .toast { bottom: calc(6.6rem + env(safe-area-inset-bottom)); }
 .alt { display: grid; gap: 2px; }
 .alt .btn { font-size: .95rem; }
 ol.steps { margin: 0; padding-left: 1.3rem; display: grid; gap: 8px; }
+.page-top { display: flex; align-items: center; gap: 12px; }
+.page-top h1 { font-size: 1.45rem; }
+.page-top p { margin-top: 2px; }
+.terr-row { grid-template-columns: 3.4rem minmax(0, 1fr) auto; }
+.terr-row small .ic { color: var(--brand-ink); }
+.terr-num { display: grid; place-items: center; min-height: 3rem; padding: 4px 6px; border-radius: 12px; background: var(--brand-soft); color: var(--brand-ink); font-weight: 700; font-size: 1.1rem; line-height: 1.1; text-align: center; overflow-wrap: anywhere; }
+.thumbs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.thumb { display: grid; gap: 6px; }
+.thumb img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); }
+.map-card { padding: 10px; gap: 10px; }
+.map-btn { position: relative; display: block; width: 100%; padding: 0; border: 0; border-radius: 12px; overflow: hidden; background: var(--bg); }
+.map-btn img { display: block; width: 100%; height: auto; min-height: 120px; }
+.map-zoom { position: absolute; right: 10px; bottom: 10px; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: rgba(20,32,51,.85); color: #fff; font-weight: 700; font-size: .85rem; }
+.pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+body.has-viewer { overflow: hidden; }
+.viewer { position: fixed; inset: 0; z-index: 65; background: #0B1018; color: #fff; display: flex; flex-direction: column; }
+.viewer-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: calc(env(safe-area-inset-top) + 10px) 14px 10px; }
+.viewer-top div { display: grid; gap: 2px; }
+.viewer-top span { color: rgba(255,255,255,.75); font-size: .88rem; }
+.viewer .icon-btn { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.4); color: #fff; }
+.viewer-scroll { flex: 1; min-height: 0; overflow: auto; display: flex; touch-action: none; overscroll-behavior: contain; cursor: grab; }
+.viewer-scroll img { margin: auto; display: block; max-width: none; height: auto; user-select: none; -webkit-user-select: none; }
+.viewer-bar { display: flex; align-items: center; justify-content: center; gap: 14px; padding: 10px 14px 4px; }
+.viewer-z { min-width: 3.6rem; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+.viewer-hint { text-align: center; color: rgba(255,255,255,.75); font-size: .85rem; padding: 4px 16px calc(env(safe-area-inset-bottom) + 12px); }
 .about { color: var(--muted); font-size: .85rem; text-align: center; padding: 6px 12px 0; }
 .timer { border: 2px solid var(--brand); }
 .card.setup { border: 2px solid var(--brand); }
@@ -355,6 +381,53 @@ ol.steps { margin: 0; padding-left: 1.3rem; display: grid; gap: 8px; }
 .is-running .dot { background: #E5484D; animation: pulse 1.4s infinite; }
 @keyframes pulse { 50% { opacity: .35; } }
 .timer-clock { font-size: 2.6rem; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: .02em; line-height: 1.1; }
+.btn:disabled { opacity: .45; cursor: default; transform: none; }
+
+/* Mapa dos territórios */
+body.has-map { overflow: hidden; }
+.mapv { position: fixed; inset: 0; z-index: 50; background: var(--bg); display: flex; flex-direction: column; }
+.mapv-top { display: flex; align-items: center; gap: 12px; padding: calc(env(safe-area-inset-top) + 10px) 14px 10px; background: var(--surface); border-bottom: 1px solid var(--line); }
+.mapv-top h1 { font-size: 1.2rem; }
+.mapv-top p { color: var(--muted); font-size: .88rem; margin-top: 2px; }
+.mp-wrap { position: relative; flex: 1; min-height: 0; }
+.mp { position: absolute; inset: 0; z-index: 0; overflow: hidden; background: #F2EFE9; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; cursor: grab; }
+.mp.nomap { background-color: #EEF1F5; background-image: linear-gradient(#DCE2EA 1px, transparent 1px), linear-gradient(90deg, #DCE2EA 1px, transparent 1px); background-size: 40px 40px; }
+.mp-tiles, .mp-labels { position: absolute; inset: 0; pointer-events: none; }
+.mp-labels { z-index: 3; }
+.mp-svg { position: absolute; left: 0; top: 0; z-index: 2; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.mp-tile { position: absolute; left: 0; top: 0; z-index: 1; max-width: none; transform-origin: 0 0; opacity: 0; transition: opacity .2s; pointer-events: none; -webkit-user-drag: none; }
+.mp-tile.on { opacity: 1; }
+.mp-tile.back { z-index: 0; transition: none; }
+.mp-area { fill: rgba(29, 95, 191, .16); stroke: #1D5FBF; stroke-width: 2.5; stroke-linejoin: round; }
+.mp-area.sel { fill: rgba(29, 95, 191, .34); stroke: #0F3F86; stroke-width: 4; }
+.mp-area.dim { fill: rgba(29, 95, 191, .08); stroke: rgba(29, 95, 191, .6); stroke-width: 2; }
+.mp-lbl { position: absolute; left: 0; top: 0; padding: 1px 9px; border-radius: 999px; background: #fff; color: #0F3F86; border: 2px solid #1D5FBF; font-weight: 700; font-size: .85rem; line-height: 1.35; white-space: nowrap; box-shadow: 0 1px 3px rgba(0, 0, 0, .28); }
+.mp-lbl.sel { background: #1D5FBF; color: #fff; border-color: #fff; }
+.mp-lbl.dim { opacity: .75; }
+.mp-draft { fill: rgba(217, 72, 15, .2); stroke: none; }
+.mp-draft-line { fill: none; stroke: #D9480F; stroke-width: 3.5; stroke-linejoin: round; stroke-linecap: round; }
+.mp-draft-close { stroke: #D9480F; stroke-width: 2.5; stroke-dasharray: 7 6; }
+.mp-vert { fill: #fff; stroke: #D9480F; stroke-width: 3; }
+.mp-vert.last { fill: #D9480F; stroke: #fff; }
+.mp-acc { fill: rgba(26, 115, 232, .14); stroke: rgba(26, 115, 232, .5); stroke-width: 1; }
+.mp-me { position: absolute; left: 0; top: 0; width: 20px; height: 20px; margin: -10px 0 0 -10px; border-radius: 50%; background: #1A73E8; border: 3px solid #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, .45); }
+.mp-ctrl { position: absolute; right: 12px; top: 12px; z-index: 2; display: grid; gap: 10px; }
+.mp-ctrl .icon-btn { width: 48px; height: 48px; box-shadow: 0 2px 8px rgba(0, 0, 0, .22); }
+.mp-ctrl .icon-btn .ic { width: 24px; height: 24px; }
+.mp-attr { position: absolute; right: 0; bottom: 0; z-index: 2; background: rgba(255, 255, 255, .88); color: #333; font-size: .68rem; line-height: 1.4; padding: 2px 7px; border-top-left-radius: 8px; }
+.mp-attr a { color: inherit; }
+.mp-note { position: absolute; left: 12px; right: 72px; top: 12px; z-index: 2; }
+.mp-note .banner { box-shadow: 0 2px 10px rgba(0, 0, 0, .18); }
+.mapv-card { background: var(--surface); border-top: 1px solid var(--line); padding: 14px 16px calc(14px + env(safe-area-inset-bottom)); }
+.mapv-card > div { max-width: 560px; margin: 0 auto; display: grid; gap: 10px; }
+.mp-sel { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+.mp-sel .terr-num { min-width: 3rem; padding: 4px 10px; }
+.mp-sel .icon-btn { width: 44px; height: 44px; }
+.mp-sel b { display: block; line-height: 1.25; }
+.mp-sel small { display: block; color: var(--muted); font-size: .88rem; }
+.mini { position: relative; display: block; width: 100%; height: 10.5rem; padding: 0; border: 0; border-radius: 12px; overflow: hidden; background: #F2EFE9; }
+.mini .mp { pointer-events: none; cursor: default; }
+.mini .map-zoom { z-index: 1; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
 </style>
 </head>
@@ -400,7 +473,14 @@ ol.steps { margin: 0; padding-left: 1.3rem; display: grid; gap: 8px; }
   <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></symbol>
   <symbol id="i-phone-dl" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M12 7v6.5M9.2 10.8 12 13.6l2.8-2.8M10.5 18.5h3"/></symbol>
   <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></symbol>
+  <symbol id="i-map" viewBox="0 0 24 24"><path d="M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6z"/><path d="M9 4v14M15 6v14"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l1.5-2.5h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><circle cx="9" cy="9.5" r="1.6"/><path d="m4 18 5-5 3.5 3.5L15 14l5 4.5"/></symbol>
   <symbol id="i-list" viewBox="0 0 24 24"><path d="M8.5 6.5h12M8.5 12h12M8.5 17.5h12"/><path d="M4 6.5h.01M4 12h.01M4 17.5h.01" stroke-width="2.8"/></symbol>
+  <symbol id="i-nav" viewBox="0 0 24 24"><path d="M12 2.8 19.6 20.6 12 16.6 4.4 20.6z"/></symbol>
+  <symbol id="i-locate" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/><path d="M12 2v3.5M12 18.5V22M2 12h3.5M18.5 12H22"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21.5s-7-6.3-7-11.5a7 7 0 0 1 14 0c0 5.2-7 11.5-7 11.5z"/><circle cx="12" cy="10" r="2.5"/></symbol>
 </svg>
 
 <div class="app"><main id="view"></main></div>
@@ -415,8 +495,12 @@ ol.steps { margin: 0; padding-left: 1.3rem; display: grid; gap: 8px; }
 </div>
 <div id="sheet-root"></div>
 <div id="dlg-root"></div>
+<div id="viewer-root"></div>
+<div id="map-root"></div>
 <div id="toast-root" aria-live="polite"></div>
-<input type="file" id="file-restore" accept="application/json,.json,text/plain" hidden>
+<input type="file" id="file-restore" accept=".txt,.json,text/plain,application/json" hidden>
+<input type="file" id="file-photo" accept="image/*" multiple hidden>
+<input type="file" id="file-camera" accept="image/*" capture="environment" hidden>
 <noscript><p style="padding:20px;font-size:20px">Este app precisa do JavaScript ligado para funcionar.</p></noscript>
 
 <script>
@@ -467,6 +551,8 @@ const MONTHS_SHORT = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 's
 const WD = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
 const WD_SHORT = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
 const TABS = ['inicio', 'historico', 'relatorio', 'ajustes'];
+const PAGES = ['territorios', 'territorio'];
+const ROUTES = TABS.concat(PAGES);
 
 /* ================= Utilidades ================= */
 const $ = (s, el) => (el || document).querySelector(s);
@@ -520,8 +606,8 @@ function freshState() {
     v: 1, profile: null, plan: [], entries: [], months: {},
     report: { hours: null, studies: true, details: false, goal: false },
     timer: { running: false, startedAt: 0, accMs: 0, date: null, firstStart: 0 },
-    settings: { yearMode: 'servico', font: 1, theme: 'auto', wa: '', installDismissed: false, pubReport: false },
-    lastBackup: 0, celebrated: {}, setup: { done: false, at: 0, start: null }
+    settings: { yearMode: 'servico', font: 1, theme: 'auto', wa: '', installDismissed: false, pubReport: false, territories: false, mapKey: '', mapKeySite: '', mapView: null },
+    lastBackup: 0, celebrated: {}, setup: { done: false, at: 0, start: null }, territories: []
   };
 }
 function normalize(s) {
@@ -529,6 +615,9 @@ function normalize(s) {
   o.report = Object.assign(f.report, o.report || {});
   o.timer = Object.assign(f.timer, o.timer || {});
   o.settings = Object.assign(f.settings, o.settings || {});
+  o.settings.mapKey = cleanKey(o.settings.mapKey); o.settings.mapKeySite = cleanKey(o.settings.mapKeySite);
+  const mv = o.settings.mapView;
+  o.settings.mapView = mv && typeof mv === 'object' && [mv.lat, mv.lng, mv.z].every(n => Number.isFinite(+n)) && Math.abs(+mv.lat) <= 85 && Math.abs(+mv.lng) <= 180 ? { lat: +mv.lat, lng: +mv.lng, z: clamp(+mv.z, 3, 19) } : null;
   o.months = o.months && typeof o.months === 'object' ? o.months : {};
   o.celebrated = o.celebrated && typeof o.celebrated === 'object' ? o.celebrated : {};
   o.setup = Object.assign(f.setup, o.setup && typeof o.setup === 'object' ? o.setup : {});
@@ -540,7 +629,11 @@ function normalize(s) {
     pubs: clamp(+e.pubs || 0, 0, 999), cards: clamp(+e.cards || 0, 0, 999), videos: clamp(+e.videos || 0, 0, 999),
     students: Array.isArray(e.students) ? e.students.filter(Boolean).map(String) : [],
     note: String(e.note || ''), credit: !!e.credit, creditType: String(e.creditType || ''),
-    createdAt: +e.createdAt || Date.now(), updatedAt: +e.updatedAt || 0
+    createdAt: +e.createdAt || Date.now(), updatedAt: +e.updatedAt || 0, terr: e.terr ? String(e.terr) : null
+  }));
+  o.territories = (Array.isArray(o.territories) ? o.territories : []).filter(t => t && String(t.num == null ? '' : t.num).trim()).map(t => ({
+    id: String(t.id || uid()), num: String(t.num).trim().slice(0, 20), name: String(t.name || '').slice(0, 120), notes: String(t.notes || '').slice(0, 1000),
+    link: String(t.link || '').slice(0, 500), photos: Array.isArray(t.photos) ? t.photos.map(String).slice(0, 4) : [], area: normArea(t.area), createdAt: +t.createdAt || Date.now(), updatedAt: +t.updatedAt || 0
   }));
   o.plan = (Array.isArray(o.plan) ? o.plan : []).filter(p => p && ROLES[p.role] && /^\d{4}-\d{2}$/.test(p.from))
     .map(p => ({ from: p.from, role: p.role, goal: clamp(Math.round(+p.goal || 0), 0, 300) }));
@@ -680,6 +773,7 @@ function buildReport(ym) {
     const sm = summarize(list), rows = [];
     ACTS.forEach(a => { const c = sm.acts[a.id]; if (c) rows.push(`• ${a.label}: ${c} ${c === 1 ? 'vez' : 'vezes'}`); });
     COUNTERS.forEach(c => { if (sm[c.k]) rows.push(`• ${c.label}: ${sm[c.k]}`); });
+    if (terrOn()) { const nums = Array.from(new Set(list.filter(e => e.terr).map(e => (terrById(e.terr) || {}).num).filter(Boolean))).sort(natCmp); if (nums.length) rows.push(`• Territórios: ${nums.join(', ')}`); }
     if (rows.length) { L.push(''); L.push('📋 *Detalhes do mês*'); rows.forEach(r => L.push(r)); }
   }
   const com = String(m.comments || '').trim();
@@ -707,46 +801,63 @@ async function copyText(t) {
 /* ================= Navegação ================= */
 let route = 'inicio', sheet = null, sheetCtx = null, chartJob = null, deferredPrompt = null, tick = null;
 function hist(method, state, hash) { try { history[method](state, '', '#' + hash); } catch (e) { /* navegador sem histórico */ } }
+function curDepth() { return (history.state && history.state.d) || 0; }
+function navPush(r, extra) { hist('pushState', Object.assign({ r, d: curDepth() + 1 }, extra || {}), r); }
+function navReplace(r, extra) { hist('replaceState', Object.assign({ r, d: curDepth() }, extra || {}), r); }
 function showTab(t) { route = t; render(); window.scrollTo(0, 0); }
 function tabTo(t) {
   if (sheet) return;
   if (t === route) { render(); window.scrollTo(0, 0); return; }
-  const st = history.state || {};
-  if (t === 'inicio' && st.fromHome) { history.back(); return; }
-  if (route === 'inicio') hist('pushState', { r: t, fromHome: true }, t);
-  else hist('replaceState', { r: t, fromHome: !!st.fromHome }, t);
+  const d = curDepth();
+  if (t === 'inicio') { if (d > 0) { history.go(-d); return; } navReplace('inicio'); showTab('inicio'); return; }
+  if (route === 'inicio') navPush(t); else navReplace(t);
   showTab(t);
 }
+function openPage(pg, extra) { if (sheet) return; navPush(pg, extra); showTab(pg); }
+let afterSheet = null;
+function runAfterSheet() { if (afterSheet && !sheet) { const f = afterSheet; afterSheet = null; setTimeout(f, 0); } }
+function pageBack() { if (curDepth() > 0) history.back(); else { navReplace('inicio'); showTab('inicio'); } }
 function openSheet(name, ctx) {
   sheet = name; sheetCtx = ctx;
   $('#sheet-root').innerHTML = '';
-  const st = history.state || {};
-  hist('pushState', { r: name, sheet: true, base: route, fromHome: !!st.fromHome }, name);
+  navPush(name, { sheet: true, base: route });
   renderSheet();
   const b = $('.sheet-body'); if (b) b.scrollTop = 0;
   const x = $('.sheet [data-act="close-sheet"]'); if (x) x.focus({ preventScroll: true });
 }
-function closeSheet() {
-  if (history.state && history.state.sheet) history.back();
-  else { sheet = null; sheetCtx = null; renderSheet(); render(); }
+function closeSheet(steps) {
+  if (history.state && history.state.sheet) { if (steps > 1) history.go(-steps); else history.back(); }
+  else { sheet = null; sheetCtx = null; renderSheet(); render(); runAfterSheet(); }
 }
 window.addEventListener('popstate', e => {
-  closeDialog();
   const st = e.state || {};
+  if (M.open) {
+    closeDialog();
+    closeMapUI();
+    if (!st.mapv && ((st.sheet && sheet === st.r) || (!st.sheet && !sheet && st.r === route))) { if (sheet) renderSheet(); else render(); return; }
+  }
+  if (V.open) {
+    closeViewerUI();
+    if (!st.viewer && ((st.sheet && sheet === st.r) || (!st.sheet && !sheet && st.r === route))) return;
+  }
+  closeDialog();
   if (st.sheet) {
-    const base = TABS.includes(st.base) ? st.base : 'inicio';
-    hist('replaceState', { r: base, fromHome: !!st.fromHome }, base);
-    sheet = null; sheetCtx = null; renderSheet(); showTab(base); return;
+    if (sheet === st.r) return;
+    const base = ROUTES.includes(st.base) ? st.base : 'inicio';
+    hist('replaceState', { r: base, d: Math.max(0, (st.d || 1) - 1) }, base);
+    sheet = null; sheetCtx = null; renderSheet(); showTab(base); runAfterSheet(); return;
   }
   sheet = null; sheetCtx = null; renderSheet();
   const h = (location.hash || '').slice(1);
-  route = TABS.includes(st.r) ? st.r : TABS.includes(h) ? h : 'inicio';
+  route = ROUTES.includes(st.r) ? st.r : ROUTES.includes(h) ? h : 'inicio';
+  if (route === 'territorio' && st.tid) T.sel = st.tid;
   render();
+  runAfterSheet();
 });
 function initRoute() {
   const h = (location.hash || '').slice(1);
-  route = TABS.includes(h) ? h : 'inicio';
-  hist('replaceState', { r: route }, route);
+  route = ROUTES.includes(h) ? (h === 'territorio' ? 'territorios' : h) : 'inicio';
+  hist('replaceState', { r: route, d: 0 }, route);
   render();
   if (h === 'registrar' && S.profile) openSheet('registrar', newDraft());
 }
@@ -763,8 +874,10 @@ function render() {
   if (route === 'relatorio' && !repOn) { route = 'inicio'; hist('replaceState', { r: 'inicio' }, 'inicio'); }
   document.querySelectorAll('#tabbar [data-to]').forEach(b => { if (b.dataset.to === route) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
   let h = demo ? `<section class="banner warn demo">${ic('eye')}<div><span>Você está vendo um <b>exemplo</b>. Nada aqui fica salvo.</span><button class="btn btn-primary small" data-act="demo-exit">Começar o meu</button></div></section>` : '';
-  h += route === 'historico' ? renderHistory() : route === 'relatorio' ? renderReport() : route === 'ajustes' ? renderSettings() : renderHome();
+  h += route === 'historico' ? renderHistory() : route === 'relatorio' ? renderReport() : route === 'ajustes' ? renderSettings() : route === 'territorios' ? renderTerritories() : route === 'territorio' ? renderTerritory() : renderHome();
   v.innerHTML = h;
+  fillPhotos(v);
+  initMiniMaps(v);
   if (chartJob) { const el = $('#chart'); if (el) drawChart(el, chartJob); chartJob = null; }
   if (route === 'relatorio') updateReportPreview();
   ensureTick();
@@ -791,8 +904,9 @@ function deliveriesHtml(sm, title) {
   return `<section class="card"><h2>${title}</h2><div class="counts">${countBox('book', st, st === 1 ? 'estudo bíblico' : 'estudos bíblicos')}${COUNTERS.map(c => countBox(c.icon, sm[c.k], sm[c.k] === 1 ? c.one : c.short)).join('')}</div>${sm.unnamed ? `<p class="hint">Os estudos contam pessoas diferentes. Há ${sm.unnamed} ${sm.unnamed > 1 ? 'estudos' : 'estudo'} sem o nome da pessoa.</p>` : ''}</section>`;
 }
 function creditLabel(id) { const c = CREDIT_TYPES.find(x => x.id === id); return c ? c.label : 'crédito'; }
-function entryRow(e, showDate) {
-  const what = e.credit ? `Crédito de horas: ${creditLabel(e.creditType)}` : (e.acts.map(a => ACT[a].label).join(' · ') || 'Pregação');
+function entryRow(e, showDate, hideTerr) {
+  const tn = e.terr && !hideTerr ? (terrById(e.terr) || {}).num : '';
+  const what = (e.credit ? `Crédito de horas: ${creditLabel(e.creditType)}` : (e.acts.map(a => ACT[a].label).join(' · ') || 'Pregação')) + (tn ? ` · Território ${tn}` : '');
   const extra = COUNTERS.filter(c => e[c.k] > 0).map(c => `${e[c.k]} ${e[c.k] === 1 ? c.one : c.short}`).join(' · ');
   const studs = e.students.length ? `Estudo com ${e.students.map(esc).join(', ')}` : '';
   return `<button class="entry" data-act="edit" data-id="${esc(e.id)}" aria-label="${esc(`${dateRel(e.date)}: ${fmtHM(e.min)}, ${what}. Toque para mudar ou apagar.`)}">
@@ -840,6 +954,7 @@ function renderHome() {
     <button class="tile" data-act="goto-year"><span class="tile-k">Média por mês</span><span class="tile-v">${avg ? fmtHM(Math.round(avg.min)) : '—'}</span><span class="tile-s">${avg ? `últimos ${avg.count} ${avg.count > 1 ? 'meses' : 'mês'}` : 'aparece no mês que vem'}</span></button>
   </div>`;
   if (plan.role === 'regular') h += yearCardHtml(cur);
+  h += terrHomeHtml();
   h += deliveriesHtml(summarize(monthEntries(cur)), 'Neste mês');
   const recent = S.entries.slice().sort(byNewest).slice(0, 3);
   if (recent.length) h += `<section class="card"><h2>Últimos registros</h2><div class="entries">${recent.map(e => entryRow(e, true)).join('')}</div><button class="btn btn-ghost small" data-act="tab" data-to="historico">Ver todos os registros${ic('chev-r', 'sm')}</button></section>`;
@@ -1149,6 +1264,9 @@ function renderSettings() {
     <button class="link" data-act="setup-redo">Refazer a pergunta do começo (desde quando serve e horas não anotadas)</button></section>`;
   if (plan.role === 'publicador') h += `<section class="card"><h2>${ic('send')}Aba Relatório</h2><p>Publicador não precisa informar horas, por isso a aba Relatório fica escondida. Se quiser mandar o relatório (participação e estudos) pelo WhatsApp com o app, é só mostrar a aba.</p>
     <div class="seg" role="group" aria-label="Aba Relatório"><button data-act="pub-report" data-v="0" aria-pressed="${!S.settings.pubReport}">Esconder</button><button data-act="pub-report" data-v="1" aria-pressed="${!!S.settings.pubReport}">Mostrar</button></div></section>`;
+  h += `<section class="card"><h2>${ic('map')}Territórios</h2><p>Guarde o mapa de cada território e marque em qual você pregou de casa em casa.</p>
+    <div class="seg" role="group" aria-label="Usar territórios"><button data-act="terr-toggle" data-v="0" aria-pressed="${!terrOn()}">Desligado</button><button data-act="terr-toggle" data-v="1" aria-pressed="${terrOn()}">Ligado</button></div>
+    ${terrOn() ? `<button class="btn btn-secondary" data-act="open-terrs">${ic('map')}Abrir meus territórios</button>${mapKeyHtml()}` : ''}</section>`;
   h += `<section class="card"><h2>${ic('calendar')}Como contar o ano</h2><div class="opts">${optBtn('year-mode', 'servico', 'Ano de serviço', 'De setembro a agosto.', S.settings.yearMode !== 'civil')}${optBtn('year-mode', 'civil', 'Ano normal', 'De janeiro a dezembro.', S.settings.yearMode === 'civil')}</div></section>`;
   h += `<section class="card"><h2>${ic('eye')}Aparência</h2>
     <div class="field"><span class="lbl">Tamanho da letra</span><div class="seg" role="group" aria-label="Tamanho da letra">${[[1, 'Normal'], [1.15, 'Grande'], [1.3, 'Maior']].map(x => `<button data-act="font" data-v="${x[0]}" aria-pressed="${S.settings.font === x[0]}">${x[1]}</button>`).join('')}</div></div>
@@ -1194,18 +1312,20 @@ function renderWelcome() {
 /* ----- Telas por cima: registrar e serviço ----- */
 function newDraft(date, min) {
   min = min || 0;
-  return { id: null, date: date || todayStr(), h: Math.floor(min / 60), m: min % 60, acts: [], pubs: 0, cards: 0, videos: 0, students: [], note: '', credit: false, creditType: 'construcao', showOther: false, newName: '', err: '', fromTimer: false, createdAt: 0 };
+  return { id: null, date: date || todayStr(), h: Math.floor(min / 60), m: min % 60, acts: [], pubs: 0, cards: 0, videos: 0, students: [], note: '', credit: false, creditType: 'construcao', showOther: false, newName: '', err: '', fromTimer: false, createdAt: 0, terr: null };
 }
 function draftFrom(e) {
-  return { id: e.id, date: e.date, h: Math.floor(e.min / 60), m: e.min % 60, acts: e.acts.slice(), pubs: e.pubs, cards: e.cards, videos: e.videos, students: e.students.slice(), note: e.note, credit: e.credit, creditType: e.creditType || 'construcao', showOther: false, newName: '', err: '', fromTimer: false, createdAt: e.createdAt };
+  return { id: e.id, date: e.date, h: Math.floor(e.min / 60), m: e.min % 60, acts: e.acts.slice(), pubs: e.pubs, cards: e.cards, videos: e.videos, students: e.students.slice(), note: e.note, credit: e.credit, creditType: e.creditType || 'construcao', showOther: false, newName: '', err: '', fromTimer: false, createdAt: e.createdAt, terr: e.terr || null };
 }
 function renderSheet() {
   const root = $('#sheet-root');
   if (!sheet) { root.innerHTML = ''; document.body.classList.remove('has-sheet'); return; }
   document.body.classList.add('has-sheet');
   const old = $('.sheet-body', root), st = old ? old.scrollTop : 0;
-  root.innerHTML = sheet === 'registrar' ? entrySheetHtml() : serviceSheetHtml();
+  root.innerHTML = sheet === 'registrar' ? entrySheetHtml() : sheet === 'terr-edit' ? terrSheetHtml() : serviceSheetHtml();
   const nb = $('.sheet-body', root); if (nb) nb.scrollTop = st;
+  fillPhotos(root);
+  initMiniMaps(root);
 }
 function sheetFrame(title, body, foot) {
   return `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-t"><div class="sheet-head"><button class="icon-btn" data-act="close-sheet" aria-label="Fechar">${ic('x')}</button><h1 id="sh-t">${title}</h1></div>
@@ -1228,6 +1348,7 @@ function entrySheetHtml() {
     ${D.credit ? `<div class="opts">${CREDIT_TYPES.map(c => optBtn('credit-type', c.id, c.label, '', D.creditType === c.id)).join('')}</div><p class="hint">Crédito é o tempo de atividades que contam para a meta de pioneiro, como construção ou socorro humanitário.</p>` : ''}</section>`;
   if (!D.credit) {
     b += `<section class="field"><h2 class="q">O que você fez? <span class="opt">(pode marcar mais de um)</span></h2><div class="chips">${ACTS.map(a => { const on = D.acts.includes(a.id); return `<button class="chip" data-act="act" data-id="${a.id}" aria-pressed="${on}">${on ? ic('check-c') : ic(a.icon)}<span>${a.label}${a.sub ? `<small>${a.sub}</small>` : ''}</span></button>`; }).join('')}</div></section>`;
+    if (terrOn() && D.acts.includes('campo')) b += terrPickHtml(D);
     if (D.acts.includes('estudo')) b += studentsHtml(D);
     b += `<section class="field"><h2 class="q">Deixou ou mostrou alguma coisa?</h2><div class="cnts">${COUNTERS.map(c => `<div class="cnt-row"><span class="cnt-l">${ic(c.icon)}${c.label}</span><div class="stepper sm"><button class="icon-btn" data-act="cnt" data-k="${c.k}" data-d="-1" aria-label="${c.label}: menos um">${ic('minus')}</button><output class="val" aria-live="polite">${D[c.k]}</output><button class="icon-btn" data-act="cnt" data-k="${c.k}" data-d="1" aria-label="${c.label}: mais um">${ic('plus')}</button></div></div>`).join('')}</div></section>`;
   }
@@ -1295,7 +1416,8 @@ function saveEntry() {
     id: D.id || uid(), date: D.date, min, acts: D.credit ? [] : D.acts.slice(),
     pubs: D.credit ? 0 : D.pubs, cards: D.credit ? 0 : D.cards, videos: D.credit ? 0 : D.videos,
     students: !D.credit && D.acts.includes('estudo') ? D.students.slice() : [], note: D.note.trim(),
-    credit: !!D.credit, creditType: D.credit ? D.creditType : '', createdAt: D.createdAt || Date.now(), updatedAt: Date.now()
+    credit: !!D.credit, creditType: D.credit ? D.creditType : '', createdAt: D.createdAt || Date.now(), updatedAt: Date.now(),
+    terr: !D.credit && D.acts.includes('campo') && D.terr && terrById(D.terr) ? D.terr : null
   };
   if (edited) S.entries = S.entries.map(x => (x.id === D.id ? e : x)); else S.entries.push(e);
   if (D.fromTimer) S.timer = freshState().timer;
@@ -1314,42 +1436,33 @@ function deleteEntry() {
     { label: 'Não, deixar como está' }] });
 }
 async function doBackup() {
-  const data = JSON.stringify({ app: 'minha-pregacao', v: 1, exportedAt: new Date().toISOString(), data: S });
-  const name = `minha-pregacao-copia-${todayStr()}.json`;
+  const fotos = {};
+  for (const t of S.territories) for (const pid of t.photos) { const src = await photoGet(pid); if (src) fotos[pid] = src; }
+  const data = JSON.stringify({ app: 'minha-pregacao', v: 1, exportedAt: new Date().toISOString(), data: S, fotos });
   const done = () => { S.lastBackup = Date.now(); save(); if (route === 'ajustes') render(); };
-  if (inFrame) { showBackupText(data, done); return; }
-  try {
-    const file = new File([data], name, { type: 'application/json' });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ files: [file], title: 'Cópia de segurança: Minha Pregação' });
-      done(); toast('Cópia enviada. Guarde bem esse arquivo.'); return;
-    }
-  } catch (err) { if (err && err.name === 'AbortError') return; }
-  try {
-    const url = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
-    const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 5000);
-    done(); toast('Cópia salva na pasta Downloads do celular.');
-  } catch (err) { showBackupText(data, done); }
+  const r = await shareFile(data, `minha-pregacao-copia-${todayStr()}.txt`, 'Cópia de segurança: Minha Pregação');
+  if (r === 'shared') { done(); toast('Cópia enviada. Guarde bem esse arquivo.'); }
+  else if (r === 'saved') { done(); toast('Cópia salva na pasta Downloads do celular.'); }
+  else if (r === 'text') showBackupText(data, done);
 }
 function showBackupText(data, done) {
   dialog({ title: 'Cópia de segurança', html: `<p>Aqui não dá para baixar arquivo. Copie o texto abaixo e guarde, por exemplo mandando para você mesmo no WhatsApp.</p><textarea readonly rows="6" aria-label="Texto da cópia">${esc(data)}</textarea>`, actions: [
     { label: 'Copiar o texto da cópia', kind: 'btn-primary', fn: async () => { const ok = await copyText(data); if (ok) { done(); toast('Copiado! Cole numa conversa ou num bloco de notas.'); } else toast('Não deu para copiar. Segure o dedo no texto para copiar.'); } },
     { label: 'Fechar' }] });
 }
-function importText(txt) {
-  let obj = null;
-  try { obj = JSON.parse(txt); } catch (e) { obj = null; }
+function importText(txt, parsed) {
+  let obj = parsed || null;
+  if (!obj) { try { obj = JSON.parse(txt); } catch (e) { obj = null; } }
   const data = obj && obj.app === 'minha-pregacao' && obj.data ? obj.data : null;
   if (!data || !Array.isArray(data.entries)) { dialog({ title: 'Não deu certo', html: '<p>Esse arquivo não parece ser uma cópia do Minha Pregação.</p>', actions: [{ label: 'Entendi', kind: 'btn-primary' }] }); return; }
   const when = obj.exportedAt ? fmtDateShort(obj.exportedAt) : '';
   dialog({ title: 'Restaurar esta cópia?', html: `<p>Cópia${when ? ` de ${when}` : ''} com <b>${data.entries.length} registros</b>${data.profile && data.profile.name ? ` de ${esc(data.profile.name)}` : ''}.</p><p>O que está agora neste celular vai ser trocado pelo que está na cópia.</p>`, actions: [
-    { label: 'Sim, restaurar', kind: 'btn-primary', fn: () => { const snap = snapshot(); demo = false; S = normalize(data); save(); OB.step = 1; sheet = null; renderSheet(); route = 'inicio'; hist('replaceState', { r: 'inicio' }, 'inicio'); render(); toast('Cópia restaurada!', { label: 'Desfazer', fn: () => restoreSnap(snap) }); } },
+    { label: 'Sim, restaurar', kind: 'btn-primary', fn: async () => { const snap = snapshot(); demo = false; S = normalize(data); save(); const fotos = obj.fotos && typeof obj.fotos === 'object' ? obj.fotos : {}; for (const id of Object.keys(fotos)) if (typeof fotos[id] === 'string' && fotos[id].startsWith('data:image/')) await photoPut(id, fotos[id]); OB.step = 1; sheet = null; renderSheet(); route = 'inicio'; hist('replaceState', { r: 'inicio' }, 'inicio'); render(); toast('Cópia restaurada!', { label: 'Desfazer', fn: () => restoreSnap(snap) }); } },
     { label: 'Cancelar' }] });
 }
 function pasteDialog() {
-  dialog({ title: 'Colar a cópia', html: `<p>Cole aqui o texto da cópia de segurança.</p><textarea id="paste-box" rows="6" aria-label="Texto da cópia"></textarea>`, actions: [
-    { label: 'Restaurar', kind: 'btn-primary', keep: true, fn: () => { const v = ($('#paste-box') || {}).value || ''; closeDialog(); importText(v); } },
+  dialog({ title: 'Colar o texto', html: `<p>Cole aqui o texto da cópia de segurança ou dos territórios.</p><textarea id="paste-box" rows="6" aria-label="Texto da cópia"></textarea>`, actions: [
+    { label: 'Pronto', kind: 'btn-primary', keep: true, fn: () => { const v = ($('#paste-box') || {}).value || ''; closeDialog(); importAny(v); } },
     { label: 'Cancelar' }] });
 }
 function backfillMonths() {
@@ -1377,7 +1490,14 @@ function buildDemo() {
   st.profile = { name: 'Maria Souza', g: 'f', createdAt: Date.now() };
   st.plan = [{ from: '0000-01', role: 'regular', goal: 50 }];
   st.setup = { done: true, at: Date.now(), start: null };
-  st.settings.font = S.settings.font; st.settings.theme = S.settings.theme;
+  st.settings.font = S.settings.font; st.settings.theme = S.settings.theme; st.settings.territories = true;
+  st.settings.mapKey = S.settings.mapKey; st.settings.mapKeySite = S.settings.mapKeySite;
+  const la0 = -23.5489, lo0 = -46.6388;
+  const demoArea = i => { const r = Math.floor(i / 2), c = i % 2, la = la0 - r * 0.0031, lo = lo0 + c * 0.0036, k = [0.0003, -0.0002, 0.0004, 0][i]; return [[la, lo], [la + k, lo + 0.0031], [la - 0.0026, lo + 0.0033], [la - 0.0027 - k, lo + 0.0013], [la - 0.0024, lo - k]].map(roundLL); };
+  st.territories = [['7', 'Jardim das Flores, quadras 1 a 6'], ['12', 'Vila Nova, quadras 3 a 7'], ['15', 'Centro, ruas do comércio'], ['21', 'Conjunto Esperança, prédios']].map((x, i) => {
+    const pid = 'demo-foto-' + i; PHOTOS.set(pid, fakeMap(x[0], 99 + i * 17));
+    return { id: 'demo-terr-' + i, num: x[0], name: x[1], notes: i === 2 ? 'Comércio: melhor de manhã, antes de as lojas encherem.' : '', link: '', photos: [pid], area: demoArea(i), createdAt: Date.now(), updatedAt: 0 };
+  });
   let seed = 20261118;
   const rnd = () => { seed = (seed * 48271) % 2147483647; return seed / 2147483647; };
   const t = todayStr(), P = [0.55, 0.35, 0.75, 0.45, 0.7, 0.3, 0.95], MIN = [60, 90, 120, 150, 180, 180, 210, 240, 270];
@@ -1390,12 +1510,1001 @@ function buildDemo() {
     if (rnd() < 0.35) acts.push('revisita');
     const e = { id: uid(), date: d, min: MIN[Math.floor(rnd() * MIN.length)], acts, pubs: Math.floor(rnd() * 3), cards: Math.floor(rnd() * 3), videos: Math.floor(rnd() * 2), students: [], note: '', credit: false, creditType: '', createdAt: Date.now(), updatedAt: 0 };
     if (rnd() < 0.32) { e.acts.push('estudo'); e.students = [people[Math.floor(rnd() * people.length)]]; }
+    if (acts[0] === 'campo') e.terr = st.territories[Math.floor(rnd() * st.territories.length)].id;
     st.entries.push(e);
   }
   const prev = ymAdd(ymOf(t), -1);
   st.entries.push({ id: uid(), date: `${prev}-12`, min: 240, acts: [], pubs: 0, cards: 0, videos: 0, students: [], note: 'Ajudei na reforma do Salão do Reino', credit: true, creditType: 'construcao', createdAt: Date.now(), updatedAt: 0 });
   for (let i = 2; i <= 9; i++) st.months[ymAdd(ymOf(t), -i)] = { sentAt: Date.now() - i * 2.6e9 };
   return st;
+}
+
+/* ================= Territórios ================= */
+const T = { sel: null };
+const V = { open: false, terr: null, i: 0, z: 1 };
+const ZOOMS = [1, 1.5, 2, 3, 4, 5];
+const PHOTOS = new Map();
+let idbP = null, pendingShared = null;
+function idb() {
+  if (!idbP) idbP = new Promise((res, rej) => {
+    try {
+      const r = indexedDB.open('minhaPregacaoFotos', 1);
+      r.onupgradeneeded = () => { if (!r.result.objectStoreNames.contains('fotos')) r.result.createObjectStore('fotos'); };
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => rej(r.error);
+      r.onblocked = () => rej(new Error('bloqueado'));
+    } catch (e) { rej(e); }
+  });
+  return idbP;
+}
+function idbDo(mode, fn) {
+  return idb().then(db => new Promise((res, rej) => {
+    const tx = db.transaction('fotos', mode), rq = fn(tx.objectStore('fotos'));
+    tx.oncomplete = () => res(rq ? rq.result : undefined);
+    tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error);
+  }));
+}
+async function photoGet(id) {
+  if (PHOTOS.has(id)) return PHOTOS.get(id);
+  try { const v = await idbDo('readonly', st => st.get(id)); if (v) PHOTOS.set(id, v); return v || null; } catch (e) { return null; }
+}
+async function photoPut(id, src) { PHOTOS.set(id, src); if (demo) return; try { await idbDo('readwrite', st => st.put(src, id)); } catch (e) { /* fica só na memória */ } }
+async function photoDel(id) { PHOTOS.delete(id); if (demo) return; try { await idbDo('readwrite', st => st.delete(id)); } catch (e) { /* nada */ } }
+async function photoClear() { PHOTOS.clear(); try { await idbDo('readwrite', st => st.clear()); } catch (e) { /* nada */ } }
+function fillPhotos(root) {
+  (root || document).querySelectorAll('img[data-photo]').forEach(img => {
+    const id = img.getAttribute('data-photo');
+    img.removeAttribute('data-photo');
+    if (PHOTOS.has(id)) { img.src = PHOTOS.get(id); return; }
+    photoGet(id).then(src => { if (src) img.src = src; else img.alt = 'Foto não encontrada'; });
+  });
+}
+function compressImage(file, max, q) {
+  max = max || 1800; q = q || 0.8;
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      try {
+        const sc = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+        const w = Math.max(1, Math.round(img.naturalWidth * sc)), h = Math.max(1, Math.round(img.naturalHeight * sc));
+        const c = document.createElement('canvas'); c.width = w; c.height = h;
+        const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg', q));
+      } catch (e) { URL.revokeObjectURL(url); rej(e); }
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('imagem')); };
+    img.src = url;
+  });
+}
+const natCmp = (a, b) => String(a).localeCompare(String(b), 'pt-BR', { numeric: true, sensitivity: 'base' });
+function terrOn() { return !!S.settings.territories; }
+function sortedTerr() { return S.territories.slice().sort((a, b) => natCmp(a.num, b.num)); }
+function terrById(id) { return S.territories.find(t => t.id === id) || null; }
+function terrStats(id) { const list = S.entries.filter(e => e.terr === id); return { list, count: list.length, min: sumMin(list), last: list.reduce((m, e) => (e.date > m ? e.date : m), '') }; }
+function agoLabel(date) {
+  const d = Math.round((parseYmd(todayStr()) - parseYmd(date)) / 864e5);
+  if (d <= 0) return 'hoje';
+  if (d === 1) return 'ontem';
+  if (d < 30) return `há ${d} dias`;
+  const m = Math.floor(d / 30);
+  return m < 12 ? `há ${m} ${m > 1 ? 'meses' : 'mês'}` : 'há mais de um ano';
+}
+function safeLink(v) {
+  v = String(v || '').trim();
+  if (/^https?:\/\/\S+$/i.test(v)) return v.slice(0, 500);
+  if (/^[\w-]+(\.[\w-]+)+(\/\S*)?$/i.test(v)) return ('https://' + v).slice(0, 500);
+  return '';
+}
+function pageHead(title, sub) { return `<header class="page-top"><button class="icon-btn" data-act="page-back" aria-label="Voltar">${ic('chev-l')}</button><div><h1>${title}</h1>${sub ? `<p class="muted">${sub}</p>` : ''}</div></header>`; }
+function terrHomeHtml() {
+  if (!terrOn()) return '';
+  const n = S.territories.length;
+  if (!n) return `<section class="card"><h2>${ic('map')}Territórios</h2><p>Guarde o mapa dos territórios para ver no celular e marcar onde pregou.</p><button class="btn btn-secondary" data-act="open-terrs">${ic('plus')}Adicionar ou receber territórios</button></section>`;
+  const last = S.entries.filter(e => e.terr && terrById(e.terr)).sort(byNewest)[0], lt = last ? terrById(last.terr) : null;
+  return `<section class="card"><h2>${ic('map')}Territórios</h2><p>${n} ${n > 1 ? 'territórios guardados' : 'território guardado'}${lt ? `. Último trabalhado: <b>${esc(lt.num)}</b>, ${agoLabel(last.date)}` : ''}.</p><button class="btn btn-secondary" data-act="open-terrs">${ic('list')}Ver territórios</button>${S.territories.some(hasArea) ? `<button class="btn btn-secondary" data-act="map-all">${ic('map')}Ver no mapa</button>` : ''}</section>`;
+}
+function terrRow(t) {
+  const st = terrStats(t.id), np = t.photos.length;
+  const when = st.last ? `Última vez: ${agoLabel(st.last)} (${fmtDateShort(parseYmd(st.last))})` : 'Ainda não trabalhado';
+  const parts = (np ? `${ic('image', 'sm')}${np} ${np > 1 ? 'fotos do mapa' : 'foto do mapa'}` : 'Sem foto do mapa') + (hasArea(t) ? ` · ${ic('pin', 'sm')}Marcado no mapa` : '');
+  return `<button class="entry terr-row" data-act="terr-open" data-id="${esc(t.id)}"><span class="terr-num">${esc(t.num)}</span><span class="entry-what"><span>${esc(t.name || 'Território ' + t.num)}</span><small>${when}</small><small>${parts}</small></span>${ic('chev-r')}</button>`;
+}
+function renderTerritories() {
+  const list = sortedTerr(), mapped = list.filter(hasArea).length;
+  let h = pageHead('Territórios', list.length ? `${list.length} ${list.length > 1 ? 'territórios guardados' : 'território guardado'}` : 'Os mapas da sua congregação');
+  h += `<button class="btn btn-primary" data-act="terr-new">${ic('plus')}Novo território</button>`;
+  if (mapped) h += `<button class="btn btn-secondary" data-act="map-all">${ic('map')}Ver todos no mapa</button>`;
+  h += list.length
+    ? `<section class="card"><p class="hint">Toque num território para ver o mapa, o caminho até ele e quando foi trabalhado.${mapped ? '' : ' Para ver no mapa, abra um território e toque em <b>Marcar no mapa</b>.'}</p><div class="entries">${list.map(terrRow).join('')}</div></section>`
+    : `<section class="card"><p>Ainda não tem nenhum território. Toque em <b>Novo território</b> para guardar o mapa de um, ou receba os territórios que alguém da congregação mandou.</p></section>`;
+  h += `<section class="card"><h2>${ic('send')}Compartilhar com a congregação</h2>
+    <p>Mande os territórios, com as fotos dos mapas, num arquivo pelo WhatsApp. Quem receber abre o app, toca em <b>Receber territórios</b> e escolhe o arquivo.</p>
+    ${list.length ? `<button class="btn btn-secondary" data-act="terr-share-all">${ic('share')}Enviar todos os territórios</button>` : ''}
+    <button class="btn btn-secondary" data-act="terr-receive">${ic('download')}Receber territórios</button>
+    <p class="hint">Combine com o servo de territórios antes de mandar os mapas para outras pessoas.</p></section>`;
+  return h;
+}
+function renderTerritory() {
+  const t = terrById(T.sel);
+  if (!t) return renderTerritories();
+  const st = terrStats(t.id), n = t.photos.length;
+  let h = pageHead(`Território ${esc(t.num)}`, t.name ? esc(t.name) : '');
+  const photosHtml = n
+    ? `<section class="card map-card">${t.photos.map((pid, i) => `<button class="map-btn" data-act="view-terr" data-id="${esc(t.id)}" data-i="${i}" aria-label="Ver o mapa grande"><img data-photo="${esc(pid)}" alt="Mapa do território ${esc(t.num)}${n > 1 ? `, foto ${i + 1}` : ''}"><span class="map-zoom">${ic('plus', 'sm')}Toque para aumentar</span></button>`).join('')}</section>`
+    : `<section class="card"><p class="muted">Este território ainda não tem foto do mapa.</p><button class="btn btn-secondary" data-act="terr-edit" data-id="${esc(t.id)}">${ic('camera')}Pôr a foto do mapa</button></section>`;
+  h += hasArea(t)
+    ? `<section class="card map-card"><button class="mini" data-act="map-terr" data-id="${esc(t.id)}" data-minimap="${esc(t.id)}" aria-label="Ver o território ${esc(t.num)} no mapa"><span class="mp"></span><span class="map-zoom">${ic('map', 'sm')}Ver no mapa</span></button>
+      <a class="btn btn-primary" href="${esc(directionsUrl(t))}" target="_blank" rel="noopener">${ic('nav')}Como chegar</a>
+      <button class="btn btn-ghost" data-act="map-draw" data-id="${esc(t.id)}">${ic('pencil')}Mudar a área no mapa</button></section>${photosHtml}`
+    : `${photosHtml}<section class="card"><h2>${ic('pin')}Área no mapa</h2><p>Marque onde fica este território. Depois dá para ver todos no mapa e abrir o caminho até ele no Google Maps.</p><button class="btn btn-secondary" data-act="map-draw" data-id="${esc(t.id)}">${ic('pin')}Marcar no mapa</button></section>`;
+  if (t.link) h += `<a class="btn btn-secondary" href="${esc(t.link)}" target="_blank" rel="noopener">${ic('map')}Abrir no mapa do celular</a>`;
+  if (t.notes) h += `<section class="card"><h2>Anotações</h2><p class="pre">${esc(t.notes)}</p></section>`;
+  h += `<button class="btn btn-primary" data-act="terr-register" data-id="${esc(t.id)}">${ic('plus')}Registrar pregação neste território</button>`;
+  h += `<section class="card"><h2>${ic('calendar')}Quando foi trabalhado</h2>${st.count
+    ? `<div class="kpis"><div><span>Última vez</span><b>${cap(agoLabel(st.last))}</b></div><div><span>Vezes</span><b>${st.count}</b></div><div><span>Horas no total</span><b>${fmtHM(st.min)}</b></div></div><div class="entries">${st.list.slice().sort(byNewest).slice(0, 15).map(e => entryRow(e, true, true)).join('')}</div>${st.count > 15 ? '<p class="hint">Mostrando os 15 mais recentes.</p>' : ''}`
+    : '<p class="muted">Ainda não tem pregação registrada neste território. Ao registrar com Campo marcado, escolha este território.</p>'}</section>`;
+  h += `<div class="row2"><button class="btn btn-secondary" data-act="terr-edit" data-id="${esc(t.id)}">${ic('pencil')}Mudar</button><button class="btn btn-secondary" data-act="terr-share-one" data-id="${esc(t.id)}">${ic('share')}Enviar</button></div>`;
+  return h;
+}
+function terrDraft(t) {
+  return t ? { id: t.id, num: t.num, name: t.name, notes: t.notes, link: t.link, photos: t.photos.map(id => ({ id })), err: '', saving: false }
+    : { id: null, num: '', name: '', notes: '', link: '', photos: [], err: '', saving: false };
+}
+function terrSheetHtml() {
+  const D = sheetCtx;
+  let b = `<section class="field"><label class="lbl" for="t-num">Número do território</label><input class="txt" id="t-num" data-in="t-num" value="${esc(D.num)}" placeholder="Ex.: 12" autocomplete="off" maxlength="20" inputmode="text"></section>`;
+  b += `<section class="field"><label class="lbl" for="t-name">Nome ou bairro <span class="opt">(opcional)</span></label><input class="txt" id="t-name" data-in="t-name" value="${esc(D.name)}" placeholder="Ex.: Vila Nova, quadras 3 a 7" maxlength="120" autocomplete="off"></section>`;
+  b += `<section class="field"><h2 class="q">Foto do mapa</h2><p class="hint">Tire uma foto do cartão do território ou escolha uma foto da galeria.</p>
+    ${D.photos.length ? `<div class="thumbs">${D.photos.map((ph, i) => `<div class="thumb"><img ${ph.src ? `src="${ph.src}"` : `data-photo="${esc(ph.id)}"`} alt="Foto ${i + 1} do mapa"><button class="btn btn-danger small" data-act="terr-photo-del" data-i="${i}">${ic('trash', 'sm')}Apagar foto</button></div>`).join('')}</div>` : ''}
+    ${D.photos.length < 4 ? `<div class="row2"><button class="btn btn-secondary" data-act="terr-photo" data-src="camera">${ic('camera')}Tirar foto</button><button class="btn btn-secondary" data-act="terr-photo" data-src="gallery">${ic('image')}Da galeria</button></div>` : '<p class="hint">Cabem até 4 fotos por território.</p>'}</section>`;
+  b += `<section class="field"><label class="lbl" for="t-link">Link do mapa <span class="opt">(opcional)</span></label><input class="txt" id="t-link" data-in="t-link" type="url" inputmode="url" value="${esc(D.link)}" placeholder="Cole aqui o link do Google Maps" autocomplete="off"></section>`;
+  b += `<section class="field"><label class="lbl" for="t-notes">Anotações <span class="opt">(opcional)</span></label><textarea id="t-notes" data-in="t-notes" rows="3" placeholder="Ex.: prédios com interfone; começar pela rua de baixo">${esc(D.notes)}</textarea>
+    <p class="hint">${ic('alert', 'sm')} Não coloque nomes, telefones nem endereços de moradores. Guarde só o mapa e informações do território.</p></section>`;
+  if (D.id) b += `<button class="btn btn-danger" data-act="terr-delete">${ic('trash')}Apagar este território</button>`;
+  const foot = `${D.err ? `<p class="err" role="alert">${esc(D.err)}</p>` : ''}<button class="btn btn-primary" data-act="terr-save">${ic('check')}Salvar</button>`;
+  return sheetFrame(D.id ? `Território ${esc(D.num || '')}` : 'Novo território', b, foot);
+}
+async function saveTerr() {
+  const D = sheetCtx;
+  if (!D || D.saving) return;
+  const num = String(D.num || '').trim().slice(0, 20);
+  if (!num) { D.err = 'Escreva o número do território.'; renderSheet(); return; }
+  const dup = S.territories.find(t => t.id !== D.id && normName(t.num) === normName(num));
+  if (dup) { D.err = `Já existe o território ${dup.num}.`; renderSheet(); return; }
+  if (String(D.link || '').trim() && !safeLink(D.link)) { D.err = 'O link do mapa não parece certo. Copie de novo do Google Maps.'; renderSheet(); return; }
+  D.saving = true;
+  let t = D.id ? terrById(D.id) : null;
+  const isNew = !t;
+  if (!t) t = { id: uid(), num, name: '', notes: '', link: '', photos: [], area: [], createdAt: Date.now(), updatedAt: 0 };
+  for (const ph of D.photos) if (ph.isNew) await photoPut(ph.id, ph.src);
+  for (const pid of t.photos) if (!D.photos.some(ph => ph.id === pid)) await photoDel(pid);
+  Object.assign(t, { num, name: String(D.name || '').trim().slice(0, 120), notes: String(D.notes || '').trim().slice(0, 1000), link: safeLink(D.link), photos: D.photos.map(ph => ph.id), updatedAt: Date.now() });
+  if (isNew) { S.territories.push(t); if (route === 'territorios') afterSheet = () => { T.sel = t.id; openPage('territorio', { tid: t.id }); }; }
+  save();
+  closeSheet();
+  setTimeout(() => toast(isNew ? `Território ${num} salvo.` : 'Território atualizado.'), 80);
+}
+function deleteTerr() {
+  const t = sheetCtx && terrById(sheetCtx.id);
+  if (!t) return;
+  const st = terrStats(t.id);
+  dialog({ title: `Apagar o território ${esc(t.num)}?`, html: `<p>O mapa e as anotações dele vão ser apagados deste celular.${st.count ? (st.count === 1 ? ' O registro de pregação continua, só deixa de mostrar o território.' : ` Os ${st.count} registros de pregação continuam, só deixam de mostrar o território.`) : ''}</p>`, actions: [
+    { label: 'Sim, apagar', kind: 'btn-danger', fn: async () => {
+      for (const pid of t.photos) await photoDel(pid);
+      S.territories = S.territories.filter(x => x.id !== t.id);
+      S.entries.forEach(e => { if (e.terr === t.id) e.terr = null; });
+      save(); T.sel = null;
+      closeSheet(route === 'territorio' ? 2 : 1);
+      setTimeout(() => toast(`Território ${t.num} apagado.`), 120);
+    } },
+    { label: 'Não, deixar' }] });
+}
+async function onPhotoFiles(files) {
+  const D = sheetCtx;
+  if (!D || sheet !== 'terr-edit' || !files.length) return;
+  toast('Preparando a foto...');
+  for (const f of files) {
+    if (D.photos.length >= 4) break;
+    try { D.photos.push({ id: uid(), src: await compressImage(f), isNew: true }); } catch (e) { toast('Não consegui abrir essa foto.'); }
+  }
+  D.err = '';
+  if (sheet === 'terr-edit') { renderSheet(); toast('Foto adicionada.'); }
+}
+function terrPickHtml(D) {
+  const list = sortedTerr(), sel = terrById(D.terr);
+  if (!list.length) return '';
+  const near = D.near && D.near !== D.terr ? terrById(D.near) : null;
+  return `<section class="field"><h2 class="q">Qual território? <span class="opt">(opcional)</span></h2>
+    ${near ? `<div class="banner small">${ic('locate')}<div><span>Parece que você está no território <b>${esc(near.num)}</b>${near.name ? ` (${esc(near.name)})` : ''}. É esse?</span><button class="btn btn-secondary small" data-act="pick-terr" data-id="${esc(near.id)}">${ic('check', 'sm')}Sim, é o ${esc(near.num)}</button></div></div>` : ''}
+    <div class="quick" role="group" aria-label="Território">${list.map(t => { const on = D.terr === t.id; return `<button class="qchip" data-act="pick-terr" data-id="${esc(t.id)}" aria-pressed="${on}">${on ? ic('check', 'sm') : ''}${esc(t.num)}</button>`; }).join('')}</div>
+    ${list.some(hasArea) ? `<button class="btn btn-secondary small" data-act="map-pick-open">${ic('map')}Escolher no mapa</button>` : ''}
+    ${sel ? `<p class="hint">${esc(sel.name || 'Território ' + sel.num)}${sel.photos.length ? ` · <button class="link" data-act="view-terr" data-id="${esc(sel.id)}" data-i="0">Ver o mapa</button>` : ''}</p>` : ''}</section>`;
+}
+function openViewer(id, i) {
+  const t = terrById(id);
+  if (!t || !t.photos.length) return;
+  Object.assign(V, { open: true, terr: id, i: clamp(i || 0, 0, t.photos.length - 1), z: 1 });
+  hist('pushState', Object.assign({}, history.state || {}, { viewer: true, d: curDepth() + 1 }), (location.hash || '#inicio').slice(1));
+  renderViewer();
+  const x = $('#viewer-root [data-act="viewer-close"]'); if (x) x.focus({ preventScroll: true });
+}
+function closeViewerUI() { V.open = false; const r = $('#viewer-root'); if (r) r.innerHTML = ''; document.body.classList.remove('has-viewer'); }
+function renderViewer() {
+  const root = $('#viewer-root'), t = terrById(V.terr);
+  if (!V.open || !t) { closeViewerUI(); return; }
+  const n = t.photos.length;
+  document.body.classList.add('has-viewer');
+  root.innerHTML = `<div class="viewer" role="dialog" aria-modal="true" aria-label="Mapa do território ${esc(t.num)}">
+    <div class="viewer-top"><div><b>Território ${esc(t.num)}</b>${n > 1 ? `<span>Foto ${V.i + 1} de ${n}</span>` : t.name ? `<span>${esc(t.name)}</span>` : ''}</div><button class="icon-btn" data-act="viewer-close" aria-label="Fechar o mapa">${ic('x')}</button></div>
+    <div class="viewer-scroll" id="viewer-scroll"><img id="viewer-img" data-photo="${esc(t.photos[V.i])}" alt="Mapa do território ${esc(t.num)}" style="width:${V.z * 100}%" draggable="false"></div>
+    <div class="viewer-bar">${n > 1 ? `<button class="icon-btn" data-act="viewer-nav" data-d="-1" aria-label="Foto anterior"${V.i > 0 ? '' : ' disabled'}>${ic('chev-l')}</button>` : ''}<button class="icon-btn" data-act="viewer-zoom" data-d="-1" aria-label="Diminuir">${ic('minus')}</button><span class="viewer-z">${Math.round(V.z * 100)}%</span><button class="icon-btn" data-act="viewer-zoom" data-d="1" aria-label="Aumentar">${ic('plus')}</button>${n > 1 ? `<button class="icon-btn" data-act="viewer-nav" data-d="1" aria-label="Próxima foto"${V.i < n - 1 ? '' : ' disabled'}>${ic('chev-r')}</button>` : ''}</div>
+    <p class="viewer-hint">Aumente com os botões ou com dois dedos. Arraste para andar pelo mapa.</p></div>`;
+  fillPhotos(root);
+  bindViewer($('#viewer-scroll'));
+}
+function setZoom(z, cx, cy) {
+  const sc = $('#viewer-scroll'), img = $('#viewer-img');
+  if (!sc || !img) return;
+  z = clamp(z, 1, 5);
+  const px = cx == null ? sc.clientWidth / 2 : cx, py = cy == null ? sc.clientHeight / 2 : cy;
+  const fx = (sc.scrollLeft + px) / Math.max(1, sc.scrollWidth), fy = (sc.scrollTop + py) / Math.max(1, sc.scrollHeight);
+  V.z = z; img.style.width = (z * 100) + '%';
+  sc.scrollLeft = fx * sc.scrollWidth - px; sc.scrollTop = fy * sc.scrollHeight - py;
+  const lbl = $('.viewer-z'); if (lbl) lbl.textContent = Math.round(z * 100) + '%';
+}
+function bindViewer(sc) {
+  if (!sc) return;
+  const pts = new Map();
+  let d0 = 0, z0 = 1;
+  const pair = () => Array.from(pts.values());
+  sc.addEventListener('pointerdown', e => {
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    try { sc.setPointerCapture(e.pointerId); } catch (err) { /* nada */ }
+    if (pts.size === 2) { const q = pair(); d0 = Math.hypot(q[0].x - q[1].x, q[0].y - q[1].y); z0 = V.z; }
+  });
+  sc.addEventListener('pointermove', e => {
+    const p0 = pts.get(e.pointerId);
+    if (!p0) return;
+    if (pts.size === 1) { sc.scrollLeft -= e.clientX - p0.x; sc.scrollTop -= e.clientY - p0.y; }
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pts.size === 2 && d0) { const q = pair(), r = sc.getBoundingClientRect(); setZoom(z0 * Math.hypot(q[0].x - q[1].x, q[0].y - q[1].y) / d0, (q[0].x + q[1].x) / 2 - r.left, (q[0].y + q[1].y) / 2 - r.top); }
+  });
+  const up = e => { pts.delete(e.pointerId); if (pts.size < 2) d0 = 0; };
+  sc.addEventListener('pointerup', up);
+  sc.addEventListener('pointercancel', up);
+  sc.addEventListener('dblclick', e => { const r = sc.getBoundingClientRect(); setZoom(V.z > 1.2 ? 1 : 2.5, e.clientX - r.left, e.clientY - r.top); });
+}
+async function shareFile(text, name, title) {
+  if (inFrame) return 'text';
+  try {
+    const file = new File([text], name, { type: 'text/plain' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title }); return 'shared'; }
+  } catch (err) { if (err && err.name === 'AbortError') return 'cancel'; }
+  try {
+    const url = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
+    const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 8000);
+    return 'saved';
+  } catch (err) { return 'text'; }
+}
+async function shareTerritories(list) {
+  list = list.filter(Boolean);
+  if (!list.length) return;
+  toast('Preparando o arquivo...');
+  const items = [];
+  for (const t of list) {
+    const photos = [];
+    for (const pid of t.photos) { const src = await photoGet(pid); if (src) photos.push(src); }
+    items.push({ num: t.num, name: t.name, notes: t.notes, link: t.link, area: t.area, photos });
+  }
+  const pack = { app: 'minha-pregacao', tipo: 'territorios', v: 1, exportedAt: new Date().toISOString(), territorios: items };
+  if (S.settings.mapKey && items.some(x => x.area.length)) pack.chaveMapa = S.settings.mapKey;
+  const data = JSON.stringify(pack);
+  const one = list.length === 1;
+  const r = await shareFile(data, one ? `territorio-${list[0].num.replace(/[^\w-]+/g, '') || 'mapa'}.txt` : `territorios-${todayStr()}.txt`, one ? `Território ${list[0].num}` : 'Territórios');
+  if (r === 'shared') toast(one ? 'Território enviado.' : 'Territórios enviados.');
+  else if (r === 'saved') toast('Arquivo salvo na pasta Downloads. Mande esse arquivo pelo WhatsApp.');
+  else if (r === 'text') dialog({ title: 'Enviar territórios', html: `<p>Aqui não dá para criar arquivo. Copie o texto e mande para a pessoa. Com fotos, o texto fica bem grande.</p><textarea readonly rows="6" aria-label="Texto dos territórios">${esc(data.slice(0, 20000))}</textarea>`, actions: [
+    { label: 'Copiar o texto', kind: 'btn-primary', fn: async () => toast((await copyText(data)) ? 'Copiado!' : 'Não deu para copiar.') },
+    { label: 'Fechar' }] });
+}
+function importAny(txt) {
+  let obj = null;
+  try { obj = JSON.parse(txt); } catch (e) { obj = null; }
+  if (obj && obj.app === 'minha-pregacao' && obj.tipo === 'territorios' && Array.isArray(obj.territorios)) { importTerritories(obj); return; }
+  importText(txt, obj);
+}
+function importTerritories(obj) {
+  const inc = obj.territorios.filter(t => t && String(t.num == null ? '' : t.num).trim()).slice(0, 500);
+  if (!inc.length) { dialog({ title: 'Nada para receber', html: '<p>Esse arquivo não tem territórios.</p>', actions: [{ label: 'Entendi', kind: 'btn-primary' }] }); return; }
+  const have = new Set(S.territories.map(t => normName(t.num)));
+  const novos = inc.filter(t => !have.has(normName(String(t.num).trim()))).length, iguais = inc.length - novos;
+  const nums = inc.slice(0, 15).map(t => esc(String(t.num).trim())).join(', ') + (inc.length > 15 ? ' e outros' : '');
+  const html = `<p>Chegaram <b>${inc.length} ${inc.length > 1 ? 'territórios' : 'território'}</b>${obj.exportedAt ? `, enviados em ${fmtDateShort(obj.exportedAt)}` : ''}: ${nums}.</p>${iguais ? `<p>${iguais === 1 ? '1 já existe' : `${iguais} já existem`} no seu celular. Dá para atualizar com o que chegou ou receber só os novos.</p>` : ''}`;
+  const key = cleanKey(obj.chaveMapa);
+  const acts = iguais
+    ? [{ label: 'Receber e atualizar tudo', kind: 'btn-primary', fn: () => applyTerrImport(inc, true, key) }].concat(novos ? [{ label: `Receber só os novos (${novos})`, fn: () => applyTerrImport(inc, false, key) }] : []).concat([{ label: 'Cancelar', kind: 'btn-ghost' }])
+    : [{ label: 'Receber', kind: 'btn-primary', fn: () => applyTerrImport(inc, true, key) }, { label: 'Cancelar', kind: 'btn-ghost' }];
+  dialog({ title: 'Receber territórios?', html, actions: acts });
+}
+async function applyTerrImport(inc, update, key) {
+  let added = 0, updated = 0;
+  if (key && !rawKey()) S.settings.mapKey = key;
+  for (const t of inc) {
+    const num = String(t.num).trim().slice(0, 20);
+    let cur = S.territories.find(x => normName(x.num) === normName(num));
+    if (cur && !update) continue;
+    if (!cur) { cur = { id: uid(), num, name: '', notes: '', link: '', photos: [], area: [], createdAt: Date.now(), updatedAt: 0 }; S.territories.push(cur); added++; } else updated++;
+    if (t.name) cur.name = String(t.name).slice(0, 120);
+    if (t.notes) cur.notes = String(t.notes).slice(0, 1000);
+    const link = safeLink(t.link); if (link) cur.link = link;
+    const area = normArea(t.area); if (area.length) cur.area = area;
+    const photos = (Array.isArray(t.photos) ? t.photos : []).filter(x => typeof x === 'string' && /^data:image\/(jpeg|png|webp);base64,/.test(x) && x.length < 8e6).slice(0, 4);
+    if (photos.length) {
+      for (const old of cur.photos) await photoDel(old);
+      cur.photos = [];
+      for (const src of photos) { const pid = uid(); await photoPut(pid, src); cur.photos.push(pid); }
+    }
+    cur.updatedAt = Date.now();
+  }
+  S.settings.territories = true;
+  save();
+  if (route !== 'territorios') { T.sel = null; openPage('territorios'); } else render();
+  const parts = [];
+  if (added) parts.push(`${added} ${added > 1 ? 'territórios novos' : 'território novo'}`);
+  if (updated) parts.push(`${updated} ${updated > 1 ? 'atualizados' : 'atualizado'}`);
+  toast(parts.length ? `Pronto: ${parts.join(' e ')}.` : 'Nada mudou.');
+}
+async function checkShared() {
+  if (inFrame || !('caches' in window)) return;
+  try {
+    const c = await caches.open('minha-pregacao-recebidos'), r = await c.match('./recebido.txt');
+    if (!r) return;
+    const txt = await r.text();
+    await c.delete('./recebido.txt');
+    if (S.profile) importAny(txt); else { pendingShared = txt; toast('Termine o cadastro para receber o arquivo.'); }
+  } catch (e) { /* nada */ }
+}
+function fakeMap(label, seed) {
+  const c = document.createElement('canvas'); c.width = 960; c.height = 680;
+  const x = c.getContext('2d');
+  let sd = seed;
+  const rnd = () => { sd = (sd * 48271) % 2147483647; return sd / 2147483647; };
+  x.fillStyle = '#F5F2EA'; x.fillRect(0, 0, 960, 680);
+  const cols = 5, rows = 4, bw = 150, bh = 112, gap = 30, ox = 48, oy = 96;
+  let q = 1;
+  for (let i = 0; i < rows; i++) for (let j = 0; j < cols; j++) {
+    const bx = ox + j * (bw + gap), by = oy + i * (bh + gap), w = bw - rnd() * 10;
+    x.fillStyle = '#E2DBC8'; x.fillRect(bx, by, w, bh);
+    x.fillStyle = '#6E6450'; x.font = 'bold 26px sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.fillText(String(q++), bx + w / 2, by + bh / 2);
+  }
+  x.fillStyle = '#4F5B6E'; x.font = '18px sans-serif';
+  ['Rua das Palmeiras', 'Rua Esperança', 'Avenida Brasil'].forEach((nm, i) => x.fillText(nm, 480, oy + (i + 1) * (bh + gap) - gap / 2));
+  x.strokeStyle = '#C8352D'; x.lineWidth = 7; x.setLineDash([18, 10]);
+  x.strokeRect(ox - 16, oy - 16, cols * (bw + gap) - gap + 32, rows * (bh + gap) - gap + 32); x.setLineDash([]);
+  x.fillStyle = '#142033'; x.font = 'bold 34px sans-serif'; x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+  x.fillText(`Território ${label}`, 48, 56);
+  x.fillStyle = '#4F5B6E'; x.font = '18px sans-serif'; x.fillText('Mapa de exemplo', 760, 56);
+  return c.toDataURL('image/jpeg', 0.85);
+}
+
+/* ================= Mapa dos territórios =================
+   Mapa leve feito aqui mesmo: pedaços (tiles) do mapa Voyager da CARTO, com dados do OpenStreetMap.
+   A CARTO pede uma chave grátis (?key=) e o crédito "© OpenStreetMap, © CARTO" no mapa.
+   A chave vem do arquivo chave-mapa.txt do site ou é colada em Ajustes. */
+const SVGNS = 'http://www.w3.org/2000/svg';
+const TILE = 256, MAP_MIN_Z = 3, MAP_MAX_Z = 19, DRAW_MIN_Z = 14;
+const MAP_HOME = { lat: -14.6, lng: -52.5, z: 4 };
+const TILE_BASE = 'https://basemaps.cartocdn.com/rastertiles/voyager/';
+const lng2x = lng => (lng + 180) / 360;
+const lat2y = lat => { const s = Math.sin(clamp(lat, -85.0511, 85.0511) * Math.PI / 180); return 0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI); };
+const x2lng = x => x * 360 - 180;
+const y2lat = y => Math.atan(Math.sinh(Math.PI * (1 - 2 * y))) * 180 / Math.PI;
+const roundLL = p => [+(+p[0]).toFixed(6), +(+p[1]).toFixed(6)];
+const svgEl = (tag, cls) => { const e = document.createElementNS(SVGNS, tag); if (cls) e.setAttribute('class', cls); return e; };
+const noMotion = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+const hasArea = t => !!(t && t.area && t.area.length >= 3);
+function cleanKey(v) {
+  let s = String(v == null ? '' : v).trim();
+  const m = s.match(/[?&]key=([^&\s#"'<>]+)/i);
+  if (m) { try { s = decodeURIComponent(m[1]); } catch (e) { s = m[1]; } }
+  s = s.replace(/^(api[\s_-]*)?(key|chave)\s*[:=]\s*/i, '').replace(/^["']+|["']+$/g, '').trim();
+  s = s.split(/\s+/)[0] || '';
+  return /^[A-Za-z0-9._~+/=-]{8,2000}$/.test(s) ? s : '';
+}
+function rawKey() { return String(S.settings.mapKey || S.settings.mapKeySite || ''); }
+function tilesOk() { return !inFrame && !!rawKey(); }
+function tileSrc(z, x, y, hi) { return `${TILE_BASE}${z}/${x}/${y}${hi ? '@2x' : ''}.png?key=${encodeURIComponent(rawKey())}`; }
+function normArea(a) {
+  if (!Array.isArray(a)) return [];
+  const out = [];
+  for (const p of a.slice(0, 400)) {
+    if (!Array.isArray(p)) continue;
+    const lat = +p[0], lng = +p[1];
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 85 || Math.abs(lng) > 180) continue;
+    const q = roundLL([lat, lng]), l = out[out.length - 1];
+    if (l && l[0] === q[0] && l[1] === q[1]) continue;
+    out.push(q);
+  }
+  if (out.length > 3 && out[0][0] === out[out.length - 1][0] && out[0][1] === out[out.length - 1][1]) out.pop();
+  return out.length >= 3 ? out.slice(0, 200) : [];
+}
+function pip(x, y, pts) {
+  let inside = false;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const xi = pts[i][0], yi = pts[i][1], xj = pts[j][0], yj = pts[j][1];
+    if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+function polyArea(pts) { let a = 0; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) a += pts[j][0] * pts[i][1] - pts[i][0] * pts[j][1]; return a / 2; }
+function areaCenter(area) {
+  const pts = area.map(p => [p[1], p[0]]);
+  let a = 0, cx = 0, cy = 0;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const f = pts[j][0] * pts[i][1] - pts[i][0] * pts[j][1]; a += f; cx += (pts[j][0] + pts[i][0]) * f; cy += (pts[j][1] + pts[i][1]) * f; }
+  const c = Math.abs(a) < 1e-14 ? pts.reduce((s, p) => [s[0] + p[0] / pts.length, s[1] + p[1] / pts.length], [0, 0]) : [cx / (3 * a), cy / (3 * a)];
+  if (pip(c[0], c[1], pts)) return [c[1], c[0]];
+  const xs = [];
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const yi = pts[i][1], yj = pts[j][1]; if ((yi > c[1]) !== (yj > c[1])) xs.push(pts[i][0] + (c[1] - yi) * (pts[j][0] - pts[i][0]) / (yj - yi)); }
+  xs.sort((p, q) => p - q);
+  let best = null, bw = -1;
+  for (let k = 0; k + 1 < xs.length; k += 2) if (xs[k + 1] - xs[k] > bw) { bw = xs[k + 1] - xs[k]; best = (xs[k] + xs[k + 1]) / 2; }
+  return best == null ? [pts[0][1], pts[0][0]] : [c[1], best];
+}
+function distToArea(lat, lng, area) {
+  const kx = 111320 * Math.cos(lat * Math.PI / 180), ky = 110540;
+  let best = Infinity;
+  for (let i = 0, j = area.length - 1; i < area.length; j = i++) {
+    const ax = (area[j][1] - lng) * kx, ay = (area[j][0] - lat) * ky, bx = (area[i][1] - lng) * kx, by = (area[i][0] - lat) * ky;
+    const dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy, t = L ? clamp(-(ax * dx + ay * dy) / L, 0, 1) : 0;
+    best = Math.min(best, Math.hypot(ax + t * dx, ay + t * dy));
+  }
+  return best;
+}
+function terrAt(lat, lng) {
+  let inside = null, ia = Infinity, near = null, nd = 60;
+  S.territories.forEach(t => {
+    if (!hasArea(t)) return;
+    const pts = t.area.map(p => [p[1], p[0]]);
+    if (pip(lng, lat, pts)) { const a = Math.abs(polyArea(pts)); if (a < ia) { ia = a; inside = t.id; } }
+    else { const d = distToArea(lat, lng, t.area); if (d < nd) { nd = d; near = t.id; } }
+  });
+  return inside || near;
+}
+function directionsUrl(t) { const c = areaCenter(t.area); return `https://www.google.com/maps/dir/?api=1&destination=${c[0].toFixed(6)},${c[1].toFixed(6)}`; }
+function linkCoords(link) {
+  let s = String(link || '');
+  try { s = decodeURIComponent(s); } catch (e) { /* fica como veio */ }
+  const m = s.match(/@(-?\d{1,2}\.\d+),\s*(-?\d{1,3}\.\d+)/) || s.match(/[?&](?:q|query|ll|destination|center)=(-?\d{1,2}\.\d+),\s*(-?\d{1,3}\.\d+)/) || s.match(/!3d(-?\d{1,2}\.\d+)!4d(-?\d{1,3}\.\d+)/);
+  if (!m) return null;
+  const lat = +m[1], lng = +m[2];
+  return Math.abs(lat) <= 85 && Math.abs(lng) <= 180 ? [lat, lng] : null;
+}
+
+/* ----- O motor do mapa ----- */
+function makeMap(el, opt) {
+  opt = opt || {};
+  el.innerHTML = '<div class="mp-tiles"></div><svg class="mp-svg" aria-hidden="true" focusable="false"></svg><div class="mp-labels" aria-hidden="true"></div>';
+  const m = {
+    el, tilesEl: el.children[0], svg: el.children[1], labels: el.children[2],
+    cx: lng2x(MAP_HOME.lng), cy: lat2y(MAP_HOME.lat), z: MAP_HOME.z, w: 1, h: 1,
+    tiles: new Map(), curZ: null, backZ: null, lockZ: null, frame: 0, anim: 0, wt: 0, dead: false, loads: 0, fails: 0,
+    hi: (window.devicePixelRatio || 1) > 1.4, dbl: opt.dbl !== false,
+    onRender: null, onTap: null, onMove: null, onTiles: null, hitVertex: null, onVertex: null, onVertexEnd: null
+  };
+  m.scale = () => TILE * Math.pow(2, m.z);
+  m.toScreen = (nx, ny) => { const s = m.scale(); return [(nx - m.cx) * s + m.w / 2, (ny - m.cy) * s + m.h / 2]; };
+  m.toNorm = (sx, sy) => { const s = m.scale(); return [m.cx + (sx - m.w / 2) / s, m.cy + (sy - m.h / 2) / s]; };
+  m.toLatLng = (sx, sy) => { const n = m.toNorm(sx, sy); return [y2lat(n[1]), x2lng(n[0])]; };
+  m.keep = () => { m.z = clamp(m.z, MAP_MIN_Z, MAP_MAX_Z); m.cx = clamp(m.cx, 0, 1); m.cy = clamp(m.cy, 0, 1); };
+  m.render = () => { if (m.dead) return; m.keep(); drawTiles(m); if (m.onRender) m.onRender(m); };
+  m.req = () => { if (!m.frame && !m.dead) m.frame = requestAnimationFrame(() => { m.frame = 0; m.render(); }); };
+  m.measure = () => { m.w = Math.max(1, el.clientWidth); m.h = Math.max(1, el.clientHeight); };
+  m.resize = () => { m.measure(); m.render(); };
+  m.setView = (lat, lng, z) => { m.stop(); m.cx = lng2x(lng); m.cy = lat2y(lat); m.z = z; m.render(); };
+  m.view = () => ({ lat: y2lat(m.cy), lng: x2lng(m.cx), z: m.z });
+  m.fit = (pts, pad, maxZ) => {
+    if (!pts || !pts.length) return;
+    let x0 = 1, x1 = 0, y0 = 1, y1 = 0;
+    pts.forEach(p => { const x = lng2x(p[1]), y = lat2y(p[0]); if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; });
+    pad = pad == null ? 48 : pad;
+    const aw = Math.max(60, m.w - 2 * pad), ah = Math.max(60, m.h - 2 * pad);
+    const z = Math.log2(Math.min(aw / (Math.max(x1 - x0, 1e-10) * TILE), ah / (Math.max(y1 - y0, 1e-10) * TILE)));
+    m.stop(); m.cx = (x0 + x1) / 2; m.cy = (y0 + y1) / 2; m.z = clamp(z, MAP_MIN_Z, maxZ || 17); m.render();
+  };
+  m.stop = () => { if (m.anim) cancelAnimationFrame(m.anim); m.anim = 0; if (m.lockZ != null) { m.lockZ = null; m.req(); } };
+  m.moved = () => { if (m.onMove) m.onMove(); };
+  m.ease = (apply, dur, zA, zB) => {
+    m.stop();
+    const t0 = performance.now(); dur = noMotion() ? 0 : dur;
+    // Durante a animação, usa só os pedaços do mapa do zoom mais baixo (menos downloads); no fim, carrega os do zoom final.
+    if (dur && zA != null) m.lockZ = clamp(Math.round(Math.min(zA, zB)), 1, MAP_MAX_Z);
+    const step = now => {
+      const k = dur ? Math.min(1, (now - t0) / dur) : 1;
+      apply(1 - Math.pow(1 - k, 3));
+      if (k < 1) { m.render(); m.anim = requestAnimationFrame(step); } else { m.anim = 0; m.lockZ = null; m.render(); m.moved(); }
+    };
+    if (dur) m.anim = requestAnimationFrame(step); else step(t0);
+  };
+  m.zoomTo = (z1, sx, sy) => {
+    z1 = clamp(z1, MAP_MIN_Z, MAP_MAX_Z);
+    if (sx == null) { sx = m.w / 2; sy = m.h / 2; }
+    const n = m.toNorm(sx, sy), z0 = m.z;
+    m.ease(k => { m.z = z0 + (z1 - z0) * k; const s = m.scale(); m.cx = n[0] - (sx - m.w / 2) / s; m.cy = n[1] - (sy - m.h / 2) / s; }, 260, z0, z1);
+  };
+  m.flyTo = (lat, lng, z) => {
+    const x1 = lng2x(lng), y1 = lat2y(lat), x0 = m.cx, y0 = m.cy, z0 = m.z, z1 = clamp(z == null ? m.z : z, MAP_MIN_Z, MAP_MAX_Z);
+    const far = Math.hypot(x1 - x0, y1 - y0) * TILE * Math.pow(2, Math.max(z0, z1)) > 2.5 * Math.max(m.w, m.h);
+    if (far || Math.abs(z1 - z0) > 3) { m.stop(); m.cx = x1; m.cy = y1; m.z = z1; m.render(); m.moved(); return; }
+    m.ease(k => { m.cx = x0 + (x1 - x0) * k; m.cy = y0 + (y1 - y0) * k; m.z = z0 + (z1 - z0) * k; }, 420, z0, z1);
+  };
+  m.fling = hist => {
+    if (noMotion() || !hist || hist.length < 2) return;
+    const a = hist[0], b = hist[hist.length - 1], dt = b.t - a.t;
+    if (dt < 8 || performance.now() - b.t > 90) return;
+    let vx = (b.x - a.x) / dt, vy = (b.y - a.y) / dt, last = performance.now();
+    if (Math.hypot(vx, vy) < 0.3) return;
+    m.stop();
+    const step = now => {
+      const d = Math.min(32, now - last); last = now;
+      const s = m.scale(); m.cx -= vx * d / s; m.cy -= vy * d / s; m.render();
+      const k = Math.pow(0.994, d); vx *= k; vy *= k;
+      if (Math.hypot(vx, vy) > 0.03) m.anim = requestAnimationFrame(step); else { m.anim = 0; m.moved(); }
+    };
+    m.anim = requestAnimationFrame(step);
+  };
+  m.refreshTiles = () => { m.tiles.forEach(t => { t.img.onload = t.img.onerror = null; t.img.remove(); }); m.tiles.clear(); m.curZ = m.backZ = null; m.loads = m.fails = 0; m.render(); };
+  m.destroy = () => { m.dead = true; m.stop(); if (m.frame) cancelAnimationFrame(m.frame); clearTimeout(m.wt); m.tiles.forEach(t => { t.img.onload = t.img.onerror = null; }); m.tiles.clear(); el.innerHTML = ''; };
+  if (opt.interactive) bindMapGestures(m);
+  m.measure();
+  return m;
+}
+function newTile(m, z, x, y) {
+  const img = document.createElement('img');
+  img.className = 'mp-tile'; img.alt = ''; img.draggable = false; img.decoding = 'async';
+  const t = { z, x, y, img, done: false, failed: false, back: false, sz: 0, hi: m.hi };
+  img.onload = () => { t.done = true; img.classList.add('on'); m.loads++; if (m.onTiles) m.onTiles(); m.req(); };
+  img.onerror = () => {
+    if (t.hi) { t.hi = false; img.src = tileSrc(z, x, y, false); return; }
+    t.done = true; t.failed = true; m.fails++; if (m.onTiles) m.onTiles(); m.req();
+  };
+  img.src = tileSrc(z, x, y, t.hi);
+  return t;
+}
+function drawTiles(m) {
+  if (!tilesOk()) { if (m.tiles.size) { m.tiles.forEach(t => { t.img.onload = t.img.onerror = null; t.img.remove(); }); m.tiles.clear(); m.curZ = m.backZ = null; } return; }
+  const tz = m.lockZ != null ? m.lockZ : clamp(Math.round(m.z), 1, MAP_MAX_Z);
+  if (m.curZ !== tz) { if (m.curZ != null) m.backZ = m.curZ; m.curZ = tz; }
+  const s = m.scale();
+  const place = t => {
+    const n = Math.pow(2, t.z), ts = s / n;
+    const sz = Math.abs(ts - Math.round(ts)) < 0.01 ? Math.round(ts) : Math.ceil(ts) + 1;
+    if (t.sz !== sz) { t.sz = sz; t.img.style.width = t.img.style.height = sz + 'px'; }
+    t.img.style.transform = `translate3d(${Math.round((t.x / n - m.cx) * s + m.w / 2)}px,${Math.round((t.y / n - m.cy) * s + m.h / 2)}px,0)`;
+  };
+  const n = Math.pow(2, tz), ts = s / n, left = (m.cx * s - m.w / 2) / ts, top = (m.cy * s - m.h / 2) / ts;
+  const x0 = Math.max(0, Math.floor(left)), x1 = Math.min(n - 1, Math.floor(left + m.w / ts)), y0 = Math.max(0, Math.floor(top)), y1 = Math.min(n - 1, Math.floor(top + m.h / ts));
+  const want = new Set();
+  let ready = true;
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+    const k = tz + '/' + x + '/' + y;
+    want.add(k);
+    let t = m.tiles.get(k);
+    if (!t) { t = newTile(m, tz, x, y); m.tiles.set(k, t); m.tilesEl.appendChild(t.img); }
+    if (t.back) { t.back = false; t.img.classList.remove('back'); }
+    place(t);
+    if (!t.done) ready = false;
+  }
+  m.tiles.forEach((t, k) => {
+    if (want.has(k)) return;
+    if (!ready && t.z === m.backZ && t.done && !t.failed) { if (!t.back) { t.back = true; t.img.classList.add('back'); } place(t); return; }
+    t.img.onload = t.img.onerror = null; t.img.remove(); m.tiles.delete(k);
+  });
+  if (ready) m.backZ = null;
+}
+function bindMapGestures(m) {
+  const el = m.el, P = new Map();
+  let g = null, tap = null, lastTap = null;
+  const pt = e => { const r = el.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top, t: performance.now() }; };
+  const pair = () => { const a = Array.from(P.values()); return [a[0], a[1]]; };
+  el.addEventListener('pointerdown', e => {
+    if ((e.pointerType === 'mouse' && e.button !== 0) || P.size >= 2) return;
+    const p = pt(e);
+    P.set(e.pointerId, p);
+    try { el.setPointerCapture(e.pointerId); } catch (err) { /* evento sem captura */ }
+    m.stop();
+    if (P.size === 1) {
+      const vi = m.hitVertex ? m.hitVertex(p.x, p.y) : -1;
+      g = vi >= 0 ? { k: 'vertex', i: vi, moved: false } : { k: 'pan', last: p, hist: [p] };
+      tap = { x: p.x, y: p.y, t: p.t };
+    } else {
+      if (g && g.k === 'vertex' && g.moved && m.onVertexEnd) m.onVertexEnd(g.i);
+      const [a, b] = pair();
+      g = { k: 'pinch', d0: Math.max(12, Math.hypot(a.x - b.x, a.y - b.y)), z0: m.z, n0: m.toNorm((a.x + b.x) / 2, (a.y + b.y) / 2) };
+      tap = null;
+    }
+    if (e.cancelable) e.preventDefault();
+  });
+  el.addEventListener('pointermove', e => {
+    if (!P.has(e.pointerId)) return;
+    const p = pt(e);
+    P.set(e.pointerId, p);
+    if (tap && Math.hypot(p.x - tap.x, p.y - tap.y) > 10) tap = null;
+    if (!g) return;
+    if (g.k === 'pan') {
+      const s = m.scale(); m.cx -= (p.x - g.last.x) / s; m.cy -= (p.y - g.last.y) / s;
+      g.last = p; g.hist.push(p);
+      while (g.hist.length > 2 && p.t - g.hist[0].t > 100) g.hist.shift();
+      m.req();
+    } else if (g.k === 'vertex') {
+      if (tap) return;
+      g.moved = true;
+      if (m.onVertex) m.onVertex(g.i, m.toLatLng(p.x, p.y));
+    } else if (g.k === 'pinch' && P.size >= 2) {
+      const [a, b] = pair(), mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      m.z = clamp(g.z0 + Math.log2(Math.hypot(a.x - b.x, a.y - b.y) / g.d0), MAP_MIN_Z, MAP_MAX_Z);
+      const s = m.scale(); m.cx = g.n0[0] - (mx - m.w / 2) / s; m.cy = g.n0[1] - (my - m.h / 2) / s;
+      m.req();
+    }
+  });
+  const end = e => {
+    if (!P.has(e.pointerId)) return;
+    const p = pt(e);
+    P.delete(e.pointerId);
+    if (g && g.k === 'pinch') {
+      if (P.size === 1) { const q = Array.from(P.values())[0]; g = { k: 'pan', last: q, hist: [q] }; }
+      else { g = null; m.moved(); }
+      return;
+    }
+    if (P.size) return;
+    const was = g; g = null;
+    if (tap && e.type === 'pointerup' && p.t - tap.t < 650) {
+      const dbl = m.dbl && lastTap && p.t - lastTap.t < 330 && Math.hypot(p.x - lastTap.x, p.y - lastTap.y) < 40;
+      lastTap = dbl ? null : { x: p.x, y: p.y, t: p.t };
+      if (dbl) m.zoomTo(Math.floor(m.z + 1.0001), p.x, p.y);
+      else if (m.onTap) m.onTap(p.x, p.y, was && was.k === 'vertex' ? was.i : -1);
+    } else if (was && was.k === 'pan') { m.fling(was.hist); m.moved(); }
+    else if (was && was.k === 'vertex' && was.moved && m.onVertexEnd) m.onVertexEnd(was.i);
+    tap = null;
+  };
+  el.addEventListener('pointerup', end);
+  el.addEventListener('pointercancel', end);
+  el.addEventListener('wheel', e => {
+    e.preventDefault();
+    const p = pt(e), d = e.deltaMode === 1 ? e.deltaY * 20 : e.deltaY, n = m.toNorm(p.x, p.y);
+    m.stop(); m.z = clamp(m.z - d / 300, MAP_MIN_Z, MAP_MAX_Z);
+    const s = m.scale(); m.cx = n[0] - (p.x - m.w / 2) / s; m.cy = n[1] - (p.y - m.h / 2) / s; m.req();
+    clearTimeout(m.wt); m.wt = setTimeout(m.moved, 300);
+  }, { passive: false });
+  el.addEventListener('contextmenu', e => e.preventDefault());
+}
+
+/* ----- Mapinhas parados (na página do território) ----- */
+let MINIS = [];
+function initMiniMaps(root) {
+  MINIS = MINIS.filter(mm => { if (mm.el.isConnected) return true; mm.destroy(); return false; });
+  (root || document).querySelectorAll('[data-minimap]').forEach(box => {
+    if (box.dataset.ready) return;
+    box.dataset.ready = '1';
+    const t = terrById(box.dataset.minimap), el = $('.mp', box);
+    if (!hasArea(t) || !el) return;
+    const mm = makeMap(el, {});
+    if (!tilesOk()) el.classList.add('nomap');
+    const poly = svgEl('polygon', 'mp-area sel'), pts = t.area.map(p => [lng2x(p[1]), lat2y(p[0])]);
+    mm.svg.appendChild(poly);
+    mm.onRender = q => poly.setAttribute('points', pts.map(p => q.toScreen(p[0], p[1]).map(v => v.toFixed(1)).join(',')).join(' '));
+    mm.fit(t.area, 26, 18);
+    MINIS.push(mm);
+  });
+}
+
+/* ----- A tela do mapa: ver, escolher e marcar ----- */
+const M = { open: false, mode: 'view', sel: null, near: null, terrId: null, num: '', pts: [], undo: [], dirty: false, dragging: false, map: null, items: [], me: null, watch: null, ro: null, sp: null, note: null, after: '', locating: false, wantCenter: false };
+function openMap(mode, o) {
+  if (M.open || V.open) return;
+  o = o || {};
+  Object.assign(M, { open: true, mode, sel: o.sel || null, near: null, terrId: o.terrId || null, num: o.num || '', pts: (o.pts || []).map(p => p.slice()), orig: JSON.stringify(o.pts || []), undo: [], dirty: false, dragging: false, me: null, items: [], sp: null, note: null, after: '', locating: false, wantCenter: false });
+  hist('pushState', Object.assign({}, history.state || {}, { mapv: true, d: curDepth() + 1 }), (location.hash || '#inicio').slice(1));
+  renderMapShell();
+}
+function mapBack() {
+  if (history.state && history.state.mapv) history.back();
+  else { closeMapUI(); if (sheet) renderSheet(); else render(); }
+}
+function closeMapUI() {
+  if (!M.open) return;
+  if (M.mode === 'draw' && M.dirty && JSON.stringify(M.pts) !== M.orig) {
+    const t = terrById(M.terrId);
+    if (t && M.pts.length >= 3) { t.area = normArea(M.pts); t.updatedAt = Date.now(); save(); M.after = `Área do território ${t.num} salva no mapa.`; }
+    else if (t) M.after = 'A área não mudou. Para marcar, toque em pelo menos 3 cantos.';
+  }
+  saveMapView();
+  M.open = false;
+  if (M.watch != null) { try { navigator.geolocation.clearWatch(M.watch); } catch (e) { /* nada */ } M.watch = null; }
+  if (M.ro) { M.ro.disconnect(); M.ro = null; }
+  if (M.map) { M.map.destroy(); M.map = null; }
+  M.items = []; M.sp = null;
+  $('#map-root').innerHTML = '';
+  document.body.classList.remove('has-map');
+  if (M.after) { const msg = M.after; M.after = ''; setTimeout(() => toast(msg), 60); }
+}
+function renderMapShell() {
+  const mapped = S.territories.filter(hasArea).length;
+  const head = M.mode === 'draw' ? [`Território ${esc(M.num)}`, 'Marque a área no mapa']
+    : M.mode === 'pick' ? ['Qual território?', 'Toque no território onde você pregou']
+    : ['Mapa dos territórios', `${mapped} ${mapped === 1 ? 'território' : 'territórios'} no mapa`];
+  document.body.classList.add('has-map');
+  $('#map-root').innerHTML = `<div class="mapv" role="dialog" aria-modal="true" aria-labelledby="mapv-t">
+    <div class="mapv-top"><button class="icon-btn" data-act="map-close" aria-label="Voltar">${ic('chev-l')}</button><div><h1 id="mapv-t">${head[0]}</h1><p>${head[1]}</p></div></div>
+    <div class="mp-wrap"><div class="mp" id="mp-main"></div>
+      <div class="mp-ctrl"><button class="icon-btn" data-act="map-zoom" data-d="1" aria-label="Aproximar o mapa">${ic('plus')}</button><button class="icon-btn" data-act="map-zoom" data-d="-1" aria-label="Afastar o mapa">${ic('minus')}</button><button class="icon-btn" data-act="map-locate" aria-label="Mostrar onde eu estou">${ic('locate')}</button></div>
+      <div class="mp-note" id="mp-note" hidden></div>
+      <div class="mp-attr" id="mp-attr" hidden>© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · © <a href="https://carto.com/attribution/" target="_blank" rel="noopener">CARTO</a></div></div>
+    <div class="mapv-card" id="mp-card"></div></div>`;
+  const m = makeMap($('#mp-main'), { interactive: true, dbl: M.mode !== 'draw' });
+  M.map = m;
+  M.gAreas = svgEl('g'); M.gDraft = svgEl('g'); M.gMe = svgEl('g');
+  m.svg.append(M.gAreas, M.gDraft, M.gMe);
+  m.onRender = mapPaint; m.onTap = mapTap; m.onTiles = mapNote; m.onMove = debounce(saveMapView, 700);
+  if (M.mode === 'draw') {
+    m.hitVertex = mapHitVertex;
+    m.onVertex = (i, ll) => { if (!M.dragging) { M.undo.push(M.pts.map(p => p.slice())); M.dragging = true; } M.pts[i] = roundLL(ll); M.dirty = true; m.req(); };
+    m.onVertexEnd = () => { M.dragging = false; mapCard(); };
+  }
+  mapBuild();
+  mapCard();
+  m.measure();
+  mapInitialView();
+  mapNote();
+  if (window.ResizeObserver) { M.ro = new ResizeObserver(() => { if (M.map) M.map.resize(); }); M.ro.observe($('#mp-main')); }
+  const wantNow = M.wantCenter;
+  geoState().then(st => { if (!M.open) return; if (st === 'granted' || wantNow) startGeo(wantNow); });
+  const x = $('#map-root [data-act="map-close"]'); if (x) x.focus({ preventScroll: true });
+}
+function mapBuild() {
+  const m = M.map;
+  M.gAreas.textContent = ''; M.gDraft.textContent = ''; M.gMe.textContent = ''; m.labels.textContent = '';
+  M.items = sortedTerr().filter(t => hasArea(t) && !(M.mode === 'draw' && t.id === M.terrId)).map(t => {
+    const c = areaCenter(t.area), poly = svgEl('polygon', 'mp-area'), lbl = document.createElement('span');
+    lbl.className = 'mp-lbl'; lbl.textContent = t.num; lbl.style.display = 'none';
+    M.gAreas.appendChild(poly); m.labels.appendChild(lbl);
+    return { id: t.id, pts: t.area.map(p => [lng2x(p[1]), lat2y(p[0])]), c: [lng2x(c[1]), lat2y(c[0])], poly, lbl, sx: -999, sy: -999, vis: false };
+  });
+  if (M.mode === 'draw') {
+    M.dPoly = svgEl('polygon', 'mp-draft'); M.dClose = svgEl('line', 'mp-draft-close'); M.dLine = svgEl('polyline', 'mp-draft-line'); M.dVerts = svgEl('g');
+    M.gDraft.append(M.dPoly, M.dClose, M.dLine, M.dVerts);
+  }
+  M.acc = svgEl('circle', 'mp-acc'); M.acc.style.display = 'none'; M.gMe.appendChild(M.acc);
+  M.dot = document.createElement('span'); M.dot.className = 'mp-me'; M.dot.hidden = true; m.labels.insertBefore(M.dot, m.labels.firstChild);
+  mapClasses();
+}
+function mapClasses() {
+  M.items.forEach(it => {
+    const on = it.id === M.sel;
+    it.poly.setAttribute('class', 'mp-area' + (on ? ' sel' : '') + (M.mode === 'draw' ? ' dim' : ''));
+    it.lbl.className = 'mp-lbl' + (on ? ' sel' : '') + (M.mode === 'draw' ? ' dim' : '');
+    if (on) { M.gAreas.appendChild(it.poly); M.map.labels.appendChild(it.lbl); }
+  });
+}
+function mapPaint(m) {
+  const lblOn = m.z >= 13.2;
+  const sxy = p => { const s = m.toScreen(p[0], p[1]); return s[0].toFixed(1) + ',' + s[1].toFixed(1); };
+  M.items.forEach(it => {
+    it.poly.setAttribute('points', it.pts.map(sxy).join(' '));
+    const c = m.toScreen(it.c[0], it.c[1]);
+    it.sx = c[0]; it.sy = c[1];
+    const vis = (lblOn || it.id === M.sel) && c[0] > -60 && c[0] < m.w + 60 && c[1] > -30 && c[1] < m.h + 30;
+    if (vis !== it.vis) { it.vis = vis; it.lbl.style.display = vis ? '' : 'none'; }
+    if (vis) it.lbl.style.transform = `translate(${c[0].toFixed(1)}px,${c[1].toFixed(1)}px) translate(-50%,-50%)`;
+  });
+  if (M.mode === 'draw') paintDraft(m);
+  paintMe(m);
+}
+function paintDraft(m) {
+  const sp = M.pts.map(p => m.toScreen(lng2x(p[1]), lat2y(p[0])));
+  M.sp = sp;
+  const str = sp.map(s => s[0].toFixed(1) + ',' + s[1].toFixed(1)).join(' ');
+  M.dPoly.setAttribute('points', sp.length >= 3 ? str : '');
+  M.dLine.setAttribute('points', sp.length >= 2 ? str : '');
+  if (sp.length >= 3) {
+    const a = sp[sp.length - 1], b = sp[0];
+    M.dClose.setAttribute('x1', a[0].toFixed(1)); M.dClose.setAttribute('y1', a[1].toFixed(1)); M.dClose.setAttribute('x2', b[0].toFixed(1)); M.dClose.setAttribute('y2', b[1].toFixed(1));
+    M.dClose.style.display = '';
+  } else M.dClose.style.display = 'none';
+  const vs = M.dVerts;
+  while (vs.childNodes.length < sp.length) vs.appendChild(svgEl('circle', 'mp-vert'));
+  while (vs.childNodes.length > sp.length) vs.removeChild(vs.lastChild);
+  sp.forEach((s, i) => {
+    const c = vs.childNodes[i], last = i === sp.length - 1;
+    c.setAttribute('cx', s[0].toFixed(1)); c.setAttribute('cy', s[1].toFixed(1)); c.setAttribute('r', last ? '10' : '8');
+    c.setAttribute('class', 'mp-vert' + (last ? ' last' : ''));
+  });
+}
+function paintMe(m) {
+  if (!M.me) { M.dot.hidden = true; M.acc.style.display = 'none'; return; }
+  const s = m.toScreen(lng2x(M.me.lng), lat2y(M.me.lat));
+  M.dot.hidden = false;
+  M.dot.style.transform = `translate(${s[0].toFixed(1)}px,${s[1].toFixed(1)}px)`;
+  const r = M.me.acc / (156543.034 * Math.cos(M.me.lat * Math.PI / 180) / Math.pow(2, m.z));
+  if (r > 12 && r < 4000) { M.acc.style.display = ''; M.acc.setAttribute('cx', s[0].toFixed(1)); M.acc.setAttribute('cy', s[1].toFixed(1)); M.acc.setAttribute('r', r.toFixed(1)); }
+  else M.acc.style.display = 'none';
+}
+function mapHitVertex(x, y) {
+  if (!M.sp) return -1;
+  let best = -1, bd = 26;
+  M.sp.forEach((s, i) => { const d = Math.hypot(s[0] - x, s[1] - y); if (d < bd) { bd = d; best = i; } });
+  return best;
+}
+function mapTap(x, y, vi) {
+  const m = M.map;
+  if (M.mode === 'draw') {
+    if (vi >= 0) return;
+    if (m.z < DRAW_MIN_Z) { toast('Aproxime mais o mapa para marcar os cantos.'); m.zoomTo(Math.min(DRAW_MIN_Z + 2, Math.floor(m.z) + 3), x, y); return; }
+    if (M.pts.length >= 200) { toast('Essa área já tem pontos demais.'); return; }
+    M.undo.push(M.pts.map(p => p.slice()));
+    M.pts.push(roundLL(m.toLatLng(x, y)));
+    M.dirty = true; m.req(); mapCard();
+    return;
+  }
+  let hit = null, bd = 26;
+  M.items.forEach(it => { if (!it.vis) return; const d = Math.hypot(it.sx - x, it.sy - y); if (d < bd) { bd = d; hit = it; } });
+  if (!hit) {
+    const n = m.toNorm(x, y), cur = M.items.find(it => it.id === M.sel);
+    if (cur && pip(n[0], n[1], cur.pts)) hit = cur;
+    for (let i = M.items.length - 1; i >= 0 && !hit; i--) if (pip(n[0], n[1], M.items[i].pts)) hit = M.items[i];
+  }
+  const id = hit ? hit.id : null;
+  if (id === M.sel) return;
+  M.sel = id; mapClasses(); m.req(); mapCard();
+}
+function mapCard() {
+  const el = $('#mp-card');
+  if (!el) return;
+  let h = '';
+  if (M.mode === 'draw') {
+    const n = M.pts.length;
+    h += `<p>${n === 0 ? '<b>Toque no mapa em cada canto do território</b>, um depois do outro, dando a volta nele.' : n < 3 ? `<b>${n} ${n === 1 ? 'canto marcado' : 'cantos marcados'}.</b> Continue tocando nos outros cantos.` : `<b>Área com ${n} cantos.</b> Para ajustar, arraste um ponto. Quando terminar, toque em <b>Pronto</b>.`}</p>`;
+    h += `<div class="row2"><button class="btn btn-secondary small" data-act="map-undo"${M.undo.length ? '' : ' disabled'}>${ic('undo')}Desfazer</button><button class="btn btn-secondary small" data-act="map-clear"${n ? '' : ' disabled'}>${ic('trash')}Apagar tudo</button></div>`;
+    h += `<button class="btn btn-primary" data-act="map-done">${ic('check')}Pronto</button>`;
+  } else {
+    const t = terrById(M.sel);
+    if (t) {
+      const st = terrStats(t.id);
+      h += `<div class="mp-sel"><span class="terr-num">${esc(t.num)}</span><div><b>${esc(t.name || 'Território ' + t.num)}</b><small>${st.last ? `Última vez: ${agoLabel(st.last)}` : 'Ainda não trabalhado'}</small></div><button class="icon-btn" data-act="map-unsel" aria-label="Fechar">${ic('x')}</button></div>`;
+      h += M.mode === 'pick'
+        ? `<button class="btn btn-primary" data-act="map-pick" data-id="${esc(t.id)}">${ic('check')}Escolher o território ${esc(t.num)}</button>`
+        : `<div class="row2 go"><a class="btn btn-primary" href="${esc(directionsUrl(t))}" target="_blank" rel="noopener">${ic('nav')}Como chegar</a><button class="btn btn-secondary" data-act="map-open">Abrir${ic('chev-r')}</button></div>`;
+    }
+    const nt = M.near && !t ? terrById(M.near) : null;
+    if (nt) h += `<div class="banner small">${ic('locate')}<div><span>Parece que você está no território <b>${esc(nt.num)}</b>.</span><button class="btn btn-secondary small" data-act="${M.mode === 'pick' ? 'map-pick' : 'map-sel'}" data-id="${esc(nt.id)}">${M.mode === 'pick' ? `${ic('check', 'sm')}Escolher o ${esc(nt.num)}` : `Ver o território ${esc(nt.num)}`}</button></div></div>`;
+    if (!t && !nt) {
+      const un = S.territories.filter(x => !hasArea(x)).length;
+      h += M.items.length
+        ? `<p>${M.mode === 'pick' ? 'Toque no território onde você pregou.' : 'Toque num território para ver o caminho até ele.'}</p>${un ? `<p class="hint">${un} ${un > 1 ? 'territórios ainda não estão' : 'território ainda não está'} no mapa. Para marcar, abra o território e toque em <b>Marcar no mapa</b>.</p>` : ''}`
+        : '<p>Nenhum território está no mapa ainda.</p><p class="hint">Para marcar, abra um território e toque em <b>Marcar no mapa</b>.</p>';
+    }
+  }
+  if (M.locating) h += '<p class="hint">Procurando onde você está...</p>';
+  el.innerHTML = `<div>${h}</div>`;
+}
+function mapNote() {
+  const m = M.map;
+  if (!m) return;
+  let k = '', h = '';
+  if (inFrame) { k = 'frame'; h = `<div class="banner small">${ic('info')}<div><span>Aqui na prévia as ruas do mapa não aparecem. No app instalado, o mapa aparece completo.</span></div></div>`; }
+  else if (!rawKey() && demo) { k = 'demo'; h = `<div class="banner small">${ic('info')}<div><span>No exemplo, as ruas só aparecem depois que o mapa for ligado em Ajustes.</span></div></div>`; }
+  else if (!rawKey()) { k = 'key'; h = `<div class="banner small warn">${ic('alert')}<div><span>O mapa com as ruas ainda não foi ligado.</span><button class="btn btn-secondary small" data-act="map-key">Ligar o mapa</button></div></div>`; }
+  else if (!m.loads && (m.fails >= 3 || navigator.onLine === false)) { k = 'fail'; h = `<div class="banner small warn">${ic('alert')}<div><span>${navigator.onLine === false ? 'Sem internet, as ruas do mapa não aparecem. Os territórios continuam aqui.' : 'As ruas do mapa não carregaram. Confira a internet. Se continuar, confira a chave do mapa em Ajustes.'}</span></div></div>`; }
+  m.el.classList.toggle('nomap', !!k);
+  const at = $('#mp-attr'); if (at) at.hidden = !tilesOk() || k === 'fail';
+  if (k === M.note) return;
+  M.note = k;
+  const el = $('#mp-note');
+  if (el) { el.innerHTML = h; el.hidden = !h; }
+}
+function mapInitialView() {
+  const m = M.map, mv = S.settings.mapView;
+  const all = S.territories.filter(t => hasArea(t) && !(M.mode === 'draw' && t.id === M.terrId)).reduce((a, t) => a.concat(t.area), []);
+  if (M.mode === 'draw') {
+    if (M.pts.length >= 2) { m.fit(M.pts, 60, 18); return; }
+    if (M.pts.length === 1) { m.setView(M.pts[0][0], M.pts[0][1], 17); return; }
+    const lc = linkCoords((terrById(M.terrId) || {}).link);
+    if (lc) { m.setView(lc[0], lc[1], 17); return; }
+    if (all.length) { m.fit(all, 48, 16); return; }
+    if (mv) { m.setView(mv.lat, mv.lng, Math.max(mv.z, 15)); return; }
+    M.wantCenter = true;
+    m.setView(MAP_HOME.lat, MAP_HOME.lng, MAP_HOME.z);
+    return;
+  }
+  const sel = terrById(M.sel);
+  if (M.mode === 'view' && hasArea(sel)) { m.fit(sel.area, 80, 17); return; }
+  if (all.length) { m.fit(all, 48, 17); return; }
+  if (mv) { m.setView(mv.lat, mv.lng, mv.z); return; }
+  m.setView(MAP_HOME.lat, MAP_HOME.lng, MAP_HOME.z);
+}
+function saveMapView() {
+  if (!M.map || M.map.dead || demo) return;
+  const v = M.map.view();
+  S.settings.mapView = { lat: +v.lat.toFixed(5), lng: +v.lng.toFixed(5), z: +v.z.toFixed(2) };
+  saveSoon();
+}
+function geoState() {
+  return new Promise(res => {
+    try { if (navigator.permissions && navigator.permissions.query) { navigator.permissions.query({ name: 'geolocation' }).then(r => res(r.state), () => res('unknown')); return; } } catch (e) { /* sem suporte */ }
+    res('unknown');
+  });
+}
+function startGeo(center) {
+  if (!M.open) return;
+  if (!navigator.geolocation) { if (center) toast('Este celular não mostra onde você está.'); return; }
+  if (M.watch != null) { if (center) { if (M.me) M.map.flyTo(M.me.lat, M.me.lng, Math.max(M.map.z, 16.5)); else M.wantCenter = true; } return; }
+  M.wantCenter = !!center; M.locating = !!center;
+  if (center) mapCard();
+  try {
+    M.watch = navigator.geolocation.watchPosition(pos => {
+      if (!M.open || !M.map) return;
+      M.me = { lat: pos.coords.latitude, lng: pos.coords.longitude, acc: pos.coords.accuracy || 0 };
+      if (M.wantCenter) { M.wantCenter = false; M.map.flyTo(M.me.lat, M.me.lng, Math.max(M.map.z, 16.5)); }
+      const near = M.mode === 'draw' ? null : terrAt(M.me.lat, M.me.lng);
+      if (near !== M.near || M.locating) { M.near = near; M.locating = false; mapCard(); }
+      M.map.req();
+    }, err => {
+      if (M.watch != null) { try { navigator.geolocation.clearWatch(M.watch); } catch (e) { /* nada */ } M.watch = null; }
+      if (!M.open) return;
+      const asked = M.wantCenter || M.locating;
+      M.wantCenter = false; M.locating = false; mapCard();
+      if (asked) toast(err && err.code === 1 ? 'O celular não deixou o app ver onde você está. Libere a localização nas configurações do celular.' : 'Não consegui achar onde você está agora. Tente de novo daqui a pouco.');
+    }, { enableHighAccuracy: true, maximumAge: 10000, timeout: 25000 });
+  } catch (e) { M.watch = null; M.locating = false; }
+}
+function checkNear(D) {
+  if (!D || D.id || D.nearDone || D.terr || !navigator.geolocation || !S.territories.some(hasArea)) return;
+  D.nearDone = true;
+  geoState().then(st => {
+    if (st !== 'granted') return;
+    navigator.geolocation.getCurrentPosition(pos => {
+      if (sheet !== 'registrar' || sheetCtx !== D || D.terr || !D.acts.includes('campo')) return;
+      const id = terrAt(pos.coords.latitude, pos.coords.longitude);
+      if (id) { D.near = id; renderSheet(); }
+    }, () => { /* sem localização: fica sem sugestão */ }, { enableHighAccuracy: true, maximumAge: 120000, timeout: 15000 });
+  });
+}
+function mapKeyHtml() {
+  const k = S.settings.mapKey ? 'manual' : S.settings.mapKeySite ? 'site' : '';
+  return `<div class="field"><span class="lbl">Mapa com as ruas</span>${k
+    ? `<p class="okline">${ic('check', 'sm')}Mapa ligado.</p>${k === 'manual' ? `<div class="row2"><button class="btn btn-secondary small" data-act="map-key">Trocar a chave</button><button class="btn btn-secondary small" data-act="map-key-del">Tirar a chave</button></div>` : ''}`
+    : `<p>Para ver as ruas no mapa, o app precisa de uma chave grátis do mapa. Quem cuida do app coloca a chave uma vez.</p><button class="btn btn-secondary small" data-act="map-key">Colar a chave do mapa</button>`}</div>`;
+}
+function keyDialog() {
+  dialog({ title: 'Chave do mapa', html: `<p>Cole aqui a chave grátis do mapa, que a CARTO manda por e-mail para quem pediu.</p><input class="txt" id="map-key-in" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Cole a chave aqui" aria-label="Chave do mapa"><p class="err" id="map-key-err" role="alert" hidden></p>`, actions: [
+    { label: 'Salvar a chave', kind: 'btn-primary', keep: true, fn: () => {
+      const k = cleanKey(($('#map-key-in') || {}).value);
+      if (!k) { const er = $('#map-key-err'); if (er) { er.textContent = 'Essa chave não parece certa. Copie de novo do e-mail.'; er.hidden = false; } return; }
+      S.settings.mapKey = k; save(); closeDialog();
+      if (sheet) renderSheet(); else render();
+      if (M.open && M.map) { M.map.refreshTiles(); mapNote(); }
+      toast('Mapa ligado!');
+    } },
+    { label: 'Cancelar' }] });
+  setTimeout(() => { const i = $('#map-key-in'); if (i) i.focus(); }, 60);
+}
+function noKeyDialog() {
+  dialog({ title: 'O mapa ainda não foi ligado', html: '<p>Para marcar o território, o mapa precisa mostrar as ruas. Para isso, o app usa uma chave grátis do mapa.</p><p>Se você tem a chave, cole agora. Se não tem, fale com quem cuida do app.</p>', actions: [
+    { label: 'Colar a chave do mapa', kind: 'btn-primary', fn: keyDialog }, { label: 'Agora não' }] });
+}
+async function loadSiteKey() {
+  if (inFrame || !/^https?:$/.test(location.protocol)) return;
+  try {
+    const r = await fetch('chave-mapa.txt', { cache: 'no-store' });
+    let k = '';
+    if (r.ok) { const txt = await r.text(); if (!/</.test(txt)) k = cleanKey(txt); }
+    else if (r.status !== 404) return;
+    if (demo || k === (S.settings.mapKeySite || '')) return;
+    S.settings.mapKeySite = k; save();
+    if (!sheet && route === 'ajustes') render();
+    if (M.open && M.map) { M.map.refreshTiles(); mapNote(); }
+  } catch (e) { /* sem internet: fica a chave que já estava guardada */ }
 }
 
 const A = {
@@ -1416,7 +2525,7 @@ const A = {
     tot = clamp(tot, 0, 23 * 60 + 55); D.h = Math.floor(tot / 60); D.m = tot % 60; D.err = ''; renderSheet();
   },
   quick: el => { const D = sheetCtx, q = +el.dataset.min; D.h = Math.floor(q / 60); D.m = q % 60; D.err = ''; renderSheet(); },
-  act: el => { const D = sheetCtx, id = el.dataset.id; D.acts = D.acts.includes(id) ? D.acts.filter(a => a !== id) : D.acts.concat(id); D.err = ''; renderSheet(); },
+  act: el => { const D = sheetCtx, id = el.dataset.id; D.acts = D.acts.includes(id) ? D.acts.filter(a => a !== id) : D.acts.concat(id); D.err = ''; renderSheet(); if (id === 'campo' && D.acts.includes('campo') && terrOn()) checkNear(D); },
   cnt: el => { const D = sheetCtx, k = el.dataset.k; D[k] = clamp((D[k] || 0) + +el.dataset.d, 0, 99); D.err = ''; renderSheet(); },
   student: el => { const D = sheetCtx, n = el.dataset.name, has = D.students.some(s => normName(s) === normName(n)); D.students = has ? D.students.filter(s => normName(s) !== normName(n)) : D.students.concat(n); renderSheet(); },
   'student-add': () => {
@@ -1466,6 +2575,62 @@ const A = {
   theme: el => { S.settings.theme = el.dataset.v; save(); render(); },
   backup: () => doBackup(),
   backfill: () => backfillDialog(),
+  'terr-toggle': el => { S.settings.territories = el.dataset.v === '1'; save(); render(); if (terrOn()) toast('Territórios ligados. Eles aparecem no Início e no registro.'); },
+  'open-terrs': () => { T.sel = null; openPage('territorios'); },
+  'terr-open': el => { T.sel = el.dataset.id; openPage('territorio', { tid: T.sel }); },
+  'page-back': () => pageBack(),
+  'terr-new': () => openSheet('terr-edit', terrDraft(null)),
+  'terr-edit': el => { const t = terrById(el.dataset.id); if (t) openSheet('terr-edit', terrDraft(t)); },
+  'terr-photo': el => { if (!sheetCtx || sheetCtx.photos.length >= 4) return; $(el.dataset.src === 'camera' ? '#file-camera' : '#file-photo').click(); },
+  'terr-photo-del': el => { sheetCtx.photos.splice(+el.dataset.i, 1); renderSheet(); },
+  'terr-save': () => saveTerr(),
+  'terr-delete': () => deleteTerr(),
+  'terr-share-all': () => shareTerritories(sortedTerr()),
+  'terr-share-one': el => shareTerritories([terrById(el.dataset.id)]),
+  'terr-receive': () => {
+    if (inFrame) dialog({ title: 'Receber territórios', html: '<p>Escolha o arquivo que você recebeu ou cole o texto dele.</p>', actions: [{ label: 'Escolher arquivo', kind: 'btn-primary', fn: () => $('#file-restore').click() }, { label: 'Colar o texto', fn: pasteDialog }, { label: 'Cancelar', kind: 'btn-ghost' }] });
+    else $('#file-restore').click();
+  },
+  'terr-register': el => { const t = terrById(el.dataset.id), D = newDraft(); D.acts = ['campo']; D.terr = t ? t.id : null; openSheet('registrar', D); },
+  'pick-terr': el => { const D = sheetCtx, id = el.dataset.id; D.terr = D.terr === id ? null : id; renderSheet(); },
+  'map-all': () => openMap('view'),
+  'map-terr': el => openMap('view', { sel: el.dataset.id }),
+  'map-draw': el => { const t = terrById(el.dataset.id); if (!t) return; if (!inFrame && !rawKey()) { noKeyDialog(); return; } openMap('draw', { terrId: t.id, num: t.num, pts: t.area }); },
+  'map-pick-open': () => openMap('pick', { sel: sheetCtx && sheetCtx.terr }),
+  'map-close': () => mapBack(),
+  'map-zoom': el => { if (M.map) M.map.zoomTo(Math.round(M.map.z) + (+el.dataset.d > 0 ? 1 : -1)); },
+  'map-locate': () => startGeo(true),
+  'map-unsel': () => { M.sel = null; mapClasses(); M.map.req(); mapCard(); },
+  'map-sel': el => { M.sel = el.dataset.id; mapClasses(); M.map.req(); mapCard(); },
+  'map-open': () => {
+    const id = M.sel;
+    if (!terrById(id)) return;
+    if (route === 'territorio' && T.sel === id) { mapBack(); return; }
+    closeMapUI();
+    T.sel = id;
+    hist('replaceState', { r: 'territorio', d: curDepth(), tid: id }, 'territorio');
+    showTab('territorio');
+  },
+  'map-pick': el => { const id = el.dataset.id || M.sel; if (sheet === 'registrar' && sheetCtx && terrById(id)) { sheetCtx.terr = id; sheetCtx.near = null; } mapBack(); },
+  'map-undo': () => { if (!M.undo.length) return; M.pts = M.undo.pop(); M.dirty = true; M.map.req(); mapCard(); },
+  'map-clear': () => { if (!M.pts.length) return; M.undo.push(M.pts.map(p => p.slice())); M.pts = []; M.dirty = true; M.map.req(); mapCard(); toast('Os pontos foram apagados. Se foi sem querer, toque em Desfazer.'); },
+  'map-done': () => {
+    const t = terrById(M.terrId);
+    if (M.pts.length >= 3 || !M.dirty || JSON.stringify(M.pts) === M.orig) { mapBack(); return; }
+    if (!M.pts.length && hasArea(t)) {
+      dialog({ title: `Tirar o território ${esc(t.num)} do mapa?`, html: '<p>O território continua guardado com as fotos e as anotações. Só a área sai do mapa.</p>', actions: [
+        { label: 'Sim, tirar do mapa', kind: 'btn-danger', fn: () => { t.area = []; t.updatedAt = Date.now(); save(); M.dirty = false; M.after = `O território ${t.num} saiu do mapa.`; mapBack(); } },
+        { label: 'Não, voltar' }] });
+      return;
+    }
+    toast('Marque pelo menos 3 cantos do território.');
+  },
+  'map-key': () => keyDialog(),
+  'map-key-del': () => { S.settings.mapKey = ''; save(); render(); toast(rawKey() ? 'Chave tirada. O mapa continua ligado pelo site.' : 'Chave do mapa tirada deste celular.'); },
+  'view-terr': el => openViewer(el.dataset.id, +el.dataset.i || 0),
+  'viewer-close': () => { if (history.state && history.state.viewer) history.back(); else closeViewerUI(); },
+  'viewer-zoom': el => { const up = +el.dataset.d > 0; setZoom(up ? (ZOOMS.find(z => z > V.z + 0.01) || 5) : (ZOOMS.slice().reverse().find(z => z < V.z - 0.01) || 1)); },
+  'viewer-nav': el => { const t = terrById(V.terr); if (!t) return; V.i = clamp(V.i + +el.dataset.d, 0, t.photos.length - 1); V.z = 1; renderViewer(); },
   'su-reg': el => { if (el.dataset.v === 'new') { SU.step = 'month'; SU.start = null; } else SU.step = 'hours'; render(); },
   'su-month': el => { SU.start = el.dataset.ym; render(); },
   'su-month-ok': () => { if (!SU.start) return; setStartMonth(SU.start); SU.step = 'hours'; save(); render(); },
@@ -1488,7 +2653,7 @@ const A = {
   wipe: () => dialog({ title: 'Apagar todos os dados?', html: '<p>Isso apaga o seu nome, as metas e <b>todos os registros</b> deste celular. Se quiser guardar, faça uma cópia de segurança antes.</p>', actions: [
     { label: 'Fazer uma cópia antes', kind: 'btn-primary', fn: () => doBackup() },
     { label: 'Apagar tudo', kind: 'btn-danger', fn: () => dialog({ title: 'Tem certeza?', html: '<p>Depois de apagar, não tem como desfazer.</p>', actions: [
-      { label: 'Sim, apagar tudo', kind: 'btn-danger', fn: () => { S = freshState(); try { localStorage.removeItem(KEY); } catch (e) { /* nada */ } Object.assign(OB, { step: 1, name: '', g: '', role: '', goal: 10, err: '' }); route = 'inicio'; hist('replaceState', { r: 'inicio' }, 'inicio'); render(); toast('Todos os dados foram apagados.'); } },
+      { label: 'Sim, apagar tudo', kind: 'btn-danger', fn: () => { S = freshState(); photoClear(); try { localStorage.removeItem(KEY); } catch (e) { /* nada */ } Object.assign(OB, { step: 1, name: '', g: '', role: '', goal: 10, err: '' }); route = 'inicio'; hist('replaceState', { r: 'inicio' }, 'inicio'); render(); toast('Todos os dados foram apagados.'); } },
       { label: 'Não, voltar' }] }) },
     { label: 'Cancelar', kind: 'btn-ghost' }] }),
   'open-service': el => { const ym = el.dataset.ym || ymOf(todayStr()), p = planFor(ym); openSheet('servico', { ym, role: p.role, goal: p.goal, only: false }); },
@@ -1508,9 +2673,9 @@ const A = {
   'ob-role': el => { OB.role = el.dataset.v; OB.goal = ROLES[OB.role].goal; OB.err = ''; render(); },
   'ob-aux': el => { OB.goal = +el.dataset.v; render(); },
   'ob-goal': el => { OB.goal = el.dataset.set != null ? +el.dataset.set : clamp(OB.goal + +el.dataset.d, 0, 300); render(); },
-  'ob-finish': () => { S.profile = { name: OB.name.trim(), g: OB.g, createdAt: Date.now() }; S.plan = [{ from: '0000-01', role: OB.role, goal: OB.goal }]; save(); route = 'inicio'; hist('replaceState', { r: 'inicio' }, 'inicio'); render(); window.scrollTo(0, 0); toast(`Tudo pronto, ${firstName(S.profile.name)}!`); },
+  'ob-finish': () => { S.profile = { name: OB.name.trim(), g: OB.g, createdAt: Date.now() }; S.plan = [{ from: '0000-01', role: OB.role, goal: OB.goal }]; save(); route = 'inicio'; hist('replaceState', { r: 'inicio' }, 'inicio'); render(); window.scrollTo(0, 0); toast(`Tudo pronto, ${firstName(S.profile.name)}!`); if (pendingShared) { const ps = pendingShared; pendingShared = null; setTimeout(() => importAny(ps), 500); } },
   demo: () => { demo = true; S = buildDemo(); route = 'inicio'; hist('replaceState', { r: 'inicio' }, 'inicio'); render(); window.scrollTo(0, 0); toast('Este é um exemplo. Nada aqui fica salvo.'); },
-  'demo-exit': () => { demo = false; load(); Object.assign(OB, { step: 1, err: '' }); sheet = null; renderSheet(); route = 'inicio'; hist('replaceState', { r: 'inicio' }, 'inicio'); render(); window.scrollTo(0, 0); },
+  'demo-exit': () => { demo = false; Array.from(PHOTOS.keys()).forEach(k => { if (k.startsWith('demo-')) PHOTOS.delete(k); }); load(); Object.assign(OB, { step: 1, err: '' }); sheet = null; renderSheet(); route = 'inicio'; hist('replaceState', { r: 'inicio' }, 'inicio'); render(); window.scrollTo(0, 0); },
   dlg: el => { const a = dlgActions[+el.dataset.i]; if (!a) return; if (!a.keep) closeDialog(); if (a.fn) a.fn(); },
   'toast-act': () => { const f = toastAction; $('#toast-root').innerHTML = ''; toastAction = null; if (f) f(); }
 };
@@ -1537,7 +2702,11 @@ const IN = {
   'r-comments': el => { monthMeta(R.ym).comments = el.value; saveSoon(); updateReportPreview(); },
   wa: el => { S.settings.wa = el.value; saveSoon(); updateReportPreview(); },
   'set-name': el => { const v = el.value.trim(); if (v) { S.profile.name = v; saveSoon(); } },
-  'ob-name': el => { OB.name = el.value; }
+  'ob-name': el => { OB.name = el.value; },
+  't-num': el => { sheetCtx.num = el.value; sheetCtx.err = ''; },
+  't-name': el => { sheetCtx.name = el.value; },
+  't-link': el => { sheetCtx.link = el.value; },
+  't-notes': el => { sheetCtx.notes = el.value; }
 };
 const CH = {
   h: el => { el.value = String(sheetCtx.h); syncTimeUI(); },
@@ -1560,7 +2729,7 @@ document.addEventListener('click', e => {
 document.addEventListener('input', e => { const el = e.target.closest('[data-in]'); if (el && IN[el.dataset.in]) IN[el.dataset.in](el); });
 document.addEventListener('change', e => { const el = e.target.closest('[data-in]'); if (el && CH[el.dataset.in]) CH[el.dataset.in](el); });
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { if ($('#dlg-root').innerHTML) closeDialog(); else if (sheet) closeSheet(); return; }
+  if (e.key === 'Escape') { if ($('#dlg-root').innerHTML) closeDialog(); else if (M.open) mapBack(); else if (V.open) A['viewer-close'](); else if (sheet) closeSheet(); return; }
   if (e.key === 'Enter' && e.target.id === 'ob-name') { e.preventDefault(); A['ob-next'](); return; }
   if (e.key === 'Enter' && e.target.id === 'f-student') { e.preventDefault(); A['student-add'](); return; }
   if (e.key === 'Enter' && e.target.matches && e.target.matches('.goal-input, #f-h, #f-m')) { e.preventDefault(); e.target.blur(); return; }
@@ -1577,17 +2746,22 @@ document.addEventListener('pointerup', selectAll);
 $('#file-restore').addEventListener('change', async e => {
   const f = e.target.files && e.target.files[0]; e.target.value = '';
   if (!f) return;
-  try { importText(await f.text()); } catch (err) { dialog({ title: 'Não deu certo', html: '<p>Não consegui ler esse arquivo.</p>', actions: [{ label: 'Entendi', kind: 'btn-primary' }] }); }
+  try { importAny(await f.text()); } catch (err) { dialog({ title: 'Não deu certo', html: '<p>Não consegui ler esse arquivo.</p>', actions: [{ label: 'Entendi', kind: 'btn-primary' }] }); }
 });
+['#file-photo', '#file-camera'].forEach(sel => $(sel).addEventListener('change', e => { const fs = Array.from(e.target.files || []); e.target.value = ''; onPhotoFiles(fs); }));
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; if (!sheet && (route === 'inicio' || route === 'ajustes')) render(); });
 window.addEventListener('appinstalled', () => { deferredPrompt = null; toast('App instalado! Procure o ícone "Pregação" na tela do celular.'); if (!sheet) render(); });
 document.addEventListener('visibilitychange', () => { if (!document.hidden && !sheet && route === 'inicio' && S.profile) render(); ensureTick(); });
-window.addEventListener('resize', debounce(() => { if (route === 'historico' && !sheet && S.profile) render(); }, 200));
+window.addEventListener('resize', debounce(() => { if (route === 'historico' && !sheet && S.profile) render(); if (M.open && M.map && !M.ro) M.map.resize(); }, 200));
+window.addEventListener('online', () => { if (M.open && M.map) { if (M.map.fails) M.map.refreshTiles(); mapNote(); } });
+window.addEventListener('offline', () => { if (M.open) mapNote(); });
 if (window.matchMedia) { const mq = matchMedia('(prefers-color-scheme: dark)'); if (mq.addEventListener) mq.addEventListener('change', applyLook); }
 
 /* ================= Início ================= */
 load();
 initRoute();
+checkShared();
+loadSiteKey();
 if (!inFrame && 'serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
   navigator.serviceWorker.register('sw.js').catch(() => { /* sem modo offline */ });
 }

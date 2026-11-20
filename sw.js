@@ -1,6 +1,7 @@
 /* Minha Pregação: guarda o app no celular para abrir sem internet. */
-const VERSAO = 'minha-pregacao-v1';
+const VERSAO = 'minha-pregacao-v3';
 const FONTES = 'minha-pregacao-fontes';
+const RECEBIDOS = 'minha-pregacao-recebidos';
 const ARQUIVOS = [
   './',
   './index.html',
@@ -18,15 +19,34 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k !== VERSAO && k !== FONTES).map(k => caches.delete(k))))
+      .then(keys => Promise.all(keys.filter(k => k !== VERSAO && k !== FONTES && k !== RECEBIDOS).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', event => {
   const req = event.request;
-  if (req.method !== 'GET') return;
   const url = new URL(req.url);
+
+  // Arquivo compartilhado com o app pelo celular (Android: Compartilhar > Pregação).
+  if (req.method === 'POST' && url.pathname.endsWith('/receber-territorios')) {
+    event.respondWith((async () => {
+      try {
+        const form = await req.formData();
+        const file = form.get('arquivo');
+        if (file && typeof file.text === 'function') {
+          const cache = await caches.open(RECEBIDOS);
+          await cache.put('./recebido.txt', new Response(await file.text(), { headers: { 'content-type': 'text/plain; charset=utf-8' } }));
+        }
+      } catch (e) { /* ignora */ }
+      return Response.redirect(new URL('./#inicio', self.registration.scope).href, 303);
+    })());
+    return;
+  }
+  if (req.method !== 'GET') return;
+
+  // Chave do mapa: sempre busca na internet, para valer logo depois que for trocada no site.
+  if (url.origin === self.location.origin && url.pathname.endsWith('/chave-mapa.txt')) return;
 
   // Páginas: tenta a internet primeiro (para receber atualizações); sem internet, usa a cópia guardada.
   if (req.mode === 'navigate') {
