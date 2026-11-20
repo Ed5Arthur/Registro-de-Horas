@@ -517,7 +517,7 @@ const VERSION = '1.2';
 const inFrame = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
 
 const ROLES = {
-  publicador:  { m: 'Publicador', f: 'Publicadora', goal: 10, req: 0, hours: false, credit: false,
+  publicador:  { m: 'Publicador', f: 'Publicadora', goal: 0, req: 0, hours: false, credit: false,
                  desc: 'Sem horas obrigatórias. A meta de horas é só sua.' },
   auxiliar:    { m: 'Pioneiro auxiliar', f: 'Pioneira auxiliar', goal: 30, req: 30, hours: true, credit: true,
                  desc: '30 horas no mês, ou 15 horas nos meses que os anciãos anunciarem.' },
@@ -526,7 +526,7 @@ const ROLES = {
   especial:    { m: 'Pioneiro especial', f: 'Pioneira especial', goal: 100, req: 100, hours: true, credit: true,
                  desc: '100 horas por mês.' }
 };
-const ROLE_ORDER = ['publicador', 'auxiliar', 'regular', 'especial'];
+const ROLE_ORDER = ['auxiliar', 'regular', 'especial'];  // o app é para pioneiros; "publicador" só fica para os meses sem pioneiro
 const ACTS = [
   { id: 'campo', label: 'Campo', sub: 'de casa em casa', icon: 'door' },
   { id: 'carrinho', label: 'Carrinho', sub: 'testemunho público', icon: 'cart' },
@@ -539,7 +539,7 @@ const ACTS = [
 ];
 const ACT = {};
 ACTS.forEach(a => { ACT[a.id] = a; });
-/* Horas de crédito: atividades teocráticas (obra, LDC, commuter, Betel, socorro, escolas).
+/* Atividades teocráticas (horas de crédito): obra, LDC, commuter, Betel, socorro, escolas.
    Ficam à parte: não entram na conta da meta e vão separadas no relatório, com o tipo de atividade. */
 const CREDIT_TYPES = [
   { id: 'construcao', label: 'Obra ou manutenção', sub: 'Salão do Reino, Salão de Assembleias ou projeto do LDC' },
@@ -616,7 +616,7 @@ function freshState() {
     v: 1, profile: null, plan: [], entries: [], months: {},
     report: { hours: null, studies: true, details: false, goal: false },
     timer: { running: false, startedAt: 0, accMs: 0, date: null, firstStart: 0 },
-    settings: { yearMode: 'servico', font: 1, theme: 'auto', wa: '', installDismissed: false, pubReport: false, territories: false, mapKey: '', mapKeySite: '', mapView: null },
+    settings: { yearMode: 'servico', font: 1, theme: 'auto', wa: '', installDismissed: false, territories: false, mapKey: '', mapKeySite: '', mapView: null },
     lastBackup: 0, celebrated: {}, setup: { done: false, at: 0, start: null }, territories: []
   };
 }
@@ -696,7 +696,7 @@ function setStartMonth(start) {
   const future = S.plan.filter(x => x.from > cur && x.from > start);
   S.plan = compactPlan([{ from: '0000-01', role: 'publicador', goal: 0 }, { from: start, role: 'regular', goal: now.role === 'regular' ? now.goal : 50 }].concat(future));
 }
-function reportTabOn() { return planFor(ymOf(todayStr())).role !== 'publicador' || !!S.settings.pubReport; }
+function reportTabOn() { return true; }
 function goalHint(role) {
   if (role === 'publicador') return 'Publicadores não precisam informar horas no relatório. A meta serve só para você acompanhar (escolha "Sem meta" se preferir).';
   if (role === 'auxiliar') return 'Escolha 15 horas só nos meses em que os anciãos anunciarem essa opção.';
@@ -790,9 +790,9 @@ function buildReport(ym) {
   if (incHours) {
     L.push(`⏱️ Horas${ci.total ? ' de pregação' : ''}: *${hours}*`);
     if (ci.total) {
-      L.push(`🏗️ Horas de crédito: *${fmtHM(ci.total)}*`);
+      L.push(`🏗️ Atividades teocráticas (crédito): *${fmtHM(ci.total)}*`);
       CREDIT_TYPES.forEach(c => { if (ci.by[c.id]) L.push(`   • ${c.label}: ${fmtHM(ci.by[c.id])}${c.id === 'outro' && ci.notes.length ? ` (${ci.notes.join('; ').slice(0, 160)})` : ''}`); });
-      Object.keys(ci.by).forEach(k => { if (!CREDIT_TYPES.some(c => c.id === k)) L.push(`   • Crédito: ${fmtHM(ci.by[k])}`); });
+      Object.keys(ci.by).forEach(k => { if (!CREDIT_TYPES.some(c => c.id === k)) L.push(`   • Outra atividade: ${fmtHM(ci.by[k])}`); });
     }
   }
   if (o.goal && plan.goal) {
@@ -934,10 +934,10 @@ function deliveriesHtml(sm, title) {
   const st = sm.students.size;
   return `<section class="card"><h2>${title}</h2><div class="counts">${countBox('book', st, st === 1 ? 'estudo bíblico' : 'estudos bíblicos')}${COUNTERS.map(c => countBox(c.icon, sm[c.k], sm[c.k] === 1 ? c.one : c.short)).join('')}</div>${sm.unnamed ? `<p class="hint">Os estudos contam pessoas diferentes. Há ${sm.unnamed} ${sm.unnamed > 1 ? 'estudos' : 'estudo'} sem o nome da pessoa.</p>` : ''}</section>`;
 }
-function creditLabel(id) { const c = CREDIT_TYPES.find(x => x.id === id); return c ? c.label : 'crédito'; }
+function creditLabel(id) { const c = CREDIT_TYPES.find(x => x.id === id); return c ? c.label : 'outra atividade'; }
 function entryRow(e, showDate, hideTerr) {
   const tn = e.terr && !hideTerr ? (terrById(e.terr) || {}).num : '';
-  const what = (e.credit ? `Crédito de horas: ${creditLabel(e.creditType)}` : (e.acts.map(a => ACT[a].label).join(' · ') || 'Pregação')) + (tn ? ` · Território ${tn}` : '');
+  const what = (e.credit ? `Atividade teocrática: ${creditLabel(e.creditType)}` : (e.acts.map(a => ACT[a].label).join(' · ') || 'Pregação')) + (tn ? ` · Território ${tn}` : '');
   const extra = COUNTERS.filter(c => e[c.k] > 0).map(c => `${e[c.k]} ${e[c.k] === 1 ? c.one : c.short}`).join(' · ');
   const studs = e.students.length ? `Estudo com ${e.students.map(esc).join(', ')}` : '';
   return `<button class="entry" data-act="edit" data-id="${esc(e.id)}" aria-label="${esc(`${dateRel(e.date)}: ${fmtHM(e.min)}, ${what}. Toque para mudar ou apagar.`)}">
@@ -976,7 +976,7 @@ function renderHome() {
     ${goalMin ? `${meterHtml(total, goalMin)}<div class="hero-row"><span>${pct}% da meta</span>${reached ? `<span>${ic('check', 'sm')}Alcançada</span>` : ''}</div>` : ''}
     <p class="pace">${pace}</p>
     ${cin ? `<p class="hint on-hero">Inclui ${fmtHM(cin)} que vieram de ${monthLabel(prev, false)}.</p>` : ''}
-    ${creditMin(cur) ? `<p class="hint on-hero">+ ${fmtHM(creditMin(cur))} de crédito de horas, à parte (não entra na meta).</p>` : ''}
+    ${creditMin(cur) ? `<p class="hint on-hero">+ ${fmtHM(creditMin(cur))} de atividades teocráticas, à parte (não entra na meta).</p>` : ''}
   </section>`;
   h += `<button class="btn btn-primary big-cta" data-act="add">${ic('plus')}Registrar pregação</button>`;
   h += timerHtml();
@@ -1036,7 +1036,7 @@ function yearCardHtml(cur) {
     ${meterHtml(y.done, y.req)}
     <p>${y.done >= y.req ? 'Requisito do ano alcançado!' : `Para chegar nas ${y.req / 60}h até ${monthLabel(last, false)}, faça mais ou menos <b>${Math.ceil(per / 60)}h por mês</b> (de ${monthLabel(cur, false)} até ${monthLabel(last, false)}).`}</p>
     ${prop}<p class="hint">${Math.round(y.done / y.req * 100)}% do ano · setembro de ${y.sy - 1} a agosto de ${y.sy}</p>
-    ${(() => { const c = y.ms.filter(m => m <= cur).reduce((a, m) => a + creditMin(m), 0); return c ? `<p class="hint">Fora isso, ${fmtHM(c)} de crédito de horas no ano, à parte.</p>` : ''; })()}
+    ${(() => { const c = y.ms.filter(m => m <= cur).reduce((a, m) => a + creditMin(m), 0); return c ? `<p class="hint">Fora isso, ${fmtHM(c)} de atividades teocráticas no ano, à parte.</p>` : ''; })()}
     <button class="link" data-act="backfill">Lançar horas de meses anteriores</button></section>`;
 }
 function timerHtml() {
@@ -1094,7 +1094,7 @@ function actsHtml(sm) {
   const rows = ACTS.filter(a => sm.acts[a.id] > 0).sort((a, b) => sm.acts[b.id] - sm.acts[a.id]);
   if (!rows.length && !sm.credit) return '';
   const max = Math.max(1, ...rows.map(a => sm.acts[a.id]));
-  return `<section class="card"><h2>O que você fez</h2><div class="brk">${rows.map(a => { const n = sm.acts[a.id]; return `<div class="brk-row">${ic(a.icon)}<span class="brk-l">${a.label}</span><span class="brk-v">${n} ${n === 1 ? 'vez' : 'vezes'}</span><span class="brk-bar" aria-hidden="true"><i style="width:${Math.round(n / max * 100)}%"></i></span></div>`; }).join('')}${sm.credit ? `<div class="brk-row">${ic('star')}<span class="brk-l">Crédito de horas</span><span class="brk-v">${fmtHM(sm.credit)}</span></div>` : ''}</div><p class="hint">Um registro pode ter mais de um tipo.</p></section>`;
+  return `<section class="card"><h2>O que você fez</h2><div class="brk">${rows.map(a => { const n = sm.acts[a.id]; return `<div class="brk-row">${ic(a.icon)}<span class="brk-l">${a.label}</span><span class="brk-v">${n} ${n === 1 ? 'vez' : 'vezes'}</span><span class="brk-bar" aria-hidden="true"><i style="width:${Math.round(n / max * 100)}%"></i></span></div>`; }).join('')}${sm.credit ? `<div class="brk-row">${ic('star')}<span class="brk-l">Atividades teocráticas</span><span class="brk-v">${fmtHM(sm.credit)}</span></div>` : ''}</div><p class="hint">Um registro pode ter mais de um tipo.</p></section>`;
 }
 function entriesCardHtml(list) {
   if (!list.length) return `<section class="card"><h2>Registros</h2><p class="muted">Nada registrado neste período.</p><button class="btn btn-secondary" data-act="add">${ic('plus')}Registrar pregação</button></section>`;
@@ -1103,7 +1103,7 @@ function entriesCardHtml(list) {
 }
 function histDay(P) {
   const list = entriesBetween(P.from, P.to), sm = summarize(list);
-  let h = `<section class="card"><span class="k">Pregação no dia</span><div class="sum-big">${fmtHM(sm.min - sm.credit)}</div>${sm.credit ? `<p class="hint">Fora isso, ${fmtHM(sm.credit)} de crédito de horas, à parte.</p>` : ''}</section>`;
+  let h = `<section class="card"><span class="k">Pregação no dia</span><div class="sum-big">${fmtHM(sm.min - sm.credit)}</div>${sm.credit ? `<p class="hint">Fora isso, ${fmtHM(sm.credit)} de atividades teocráticas, à parte.</p>` : ''}</section>`;
   if (list.length) h += `<section class="card"><h2>Registros</h2><p class="hint">Toque num registro para mudar ou apagar.</p><div class="entries">${list.slice().sort((a, b) => a.createdAt - b.createdAt).map(e => entryRow(e, false)).join('')}</div></section>`;
   else h += `<section class="card"><p class="muted">Nada registrado neste dia.</p></section>`;
   h += `<button class="btn btn-primary" data-act="add" data-date="${P.from}">${ic('plus')}Registrar neste dia</button>`;
@@ -1118,7 +1118,7 @@ function histWeek(P) {
   const def = P.isCurrent ? days.indexOf(t) : argMax(vals), sel = H.sel != null && H.sel < 7 ? H.sel : def;
   let h = `<section class="card"><span class="k">Pregação na semana</span><div class="sum-big">${fmtHM(sm.min - sm.credit)}</div>
     <div class="kpis"><div><span>Dias de pregação</span><b>${sm.days} de 7</b></div><div><span>Média por dia de pregação</span><b>${sm.days ? fmtHM(Math.round(avgDay)) : '—'}</b></div></div>
-    ${sm.credit ? `<p class="hint">Fora isso, ${fmtHM(sm.credit)} de crédito de horas, à parte.</p>` : ''}</section>`;
+    ${sm.credit ? `<p class="hint">Fora isso, ${fmtHM(sm.credit)} de atividades teocráticas, à parte.</p>` : ''}</section>`;
   h += chartCard({ title: 'Horas de pregação por dia', unit: 'dia', values: vals, labels: days.map(d => cap(WD_SHORT[parseYmd(d).getDay()])), sub: days.map(d => String(parseYmd(d).getDate())), muted: days.map(d => d > t), sel, read: i => cap(dateLong(days[i])), rows: days.map((d, i) => [cap(dateLong(d)), fmtHM(vals[i])]) });
   return h + actsHtml(sm) + deliveriesHtml(sm, 'Entregas e estudos') + entriesCardHtml(list);
 }
@@ -1136,7 +1136,7 @@ function histMonth(P) {
   let h = `<section class="card"><div class="sum-head"><div><span class="k">Total do mês</span><div class="sum-big">${fmtHM(total)}</div></div><button class="pill2" data-act="open-service" data-ym="${ym}">${esc(roleLabel(plan.role))}<br>${plan.goal ? `meta ${plan.goal}h` : 'sem meta'}${ic('pencil', 'sm')}</button></div>
     ${goalMin ? meterHtml(total, goalMin) : ''}${status}
     <div class="kpis"><div><span>Dias de pregação</span><b>${sm.days}</b></div><div><span>Média por dia de pregação</span><b>${sm.days ? fmtHM(Math.round(avgDay)) : '—'}</b></div><div><span>Média por semana</span><b>${fmtHM(Math.round(perWeek))}</b></div></div>
-    ${sm.credit ? `<p class="hint">Fora isso, ${fmtHM(sm.credit)} de crédito de horas, à parte (não entra na meta).</p>` : ''}
+    ${sm.credit ? `<p class="hint">Fora isso, ${fmtHM(sm.credit)} de atividades teocráticas, à parte (não entra na meta).</p>` : ''}
     ${extraMin(ym) ? `<p class="hint">Inclui ${fmtHM(extraMin(ym))} lançadas sem detalhes. <button class="link" data-act="backfill">Mudar</button></p>` : ''}
     ${cin ? `<p class="hint">Inclui ${fmtHM(cin)} que vieram de ${monthLabel(ymAdd(ym, -1), false)}.</p>` : ''}
     ${cout ? `<p class="hint">${fmtHM(cout)} passaram para ${monthLabel(ymAdd(ym, 1), false)}.</p>` : ''}</section>`;
@@ -1260,9 +1260,9 @@ function renderReport() {
     <div class="field"><span class="lbl">Estudos bíblicos</span><div class="stepper"><button class="icon-btn" data-act="r-st" data-d="-1" aria-label="Menos um estudo">${ic('minus')}</button><output class="val" aria-live="polite">${reportStudies(ym)}</output><button class="icon-btn" data-act="r-st" data-d="1" aria-label="Mais um estudo">${ic('plus')}</button></div><p class="hint">${studiesHint(studentsOf(list), unnamedStudyCount(list), m)}</p></div>
     <div class="field"><span class="lbl">Horas${ci.total ? ' de pregação' : ''}${role.hours ? '' : ' <span class="opt">(publicador não precisa informar)</span>'}</span><div class="hours-big">${hours}<small>${hours === 1 ? 'hora' : 'horas'}</small></div>
       <p class="hint">Total certinho: ${fmtHM(field)}${extraMin(ym) ? `, com ${fmtHM(extraMin(ym))} lançadas sem detalhes` : ''}. O relatório usa só horas inteiras.</p>${carryHtml(ym, field, m, incHours)}</div>
-    ${ci.total ? `<div class="field"><span class="lbl">Horas de crédito</span><div class="hours-big">${fmtHM(ci.total)}</div>
+    ${ci.total ? `<div class="field"><span class="lbl">Atividades teocráticas</span><div class="hours-big">${fmtHM(ci.total)}</div>
       <ul class="credit-list">${CREDIT_TYPES.filter(c => ci.by[c.id]).map(c => `<li><span>${esc(c.label)}</span><b>${fmtHM(ci.by[c.id])}</b></li>`).join('')}</ul>
-      <p class="hint">No relatório, o crédito vai separado das horas de pregação, com o tipo de atividade. Ele não entra na conta da meta.</p></div>` : ''}
+      <p class="hint">No relatório, elas vão separadas das horas de pregação, como crédito, com o tipo de cada uma. Não entram na conta da meta.</p></div>` : ''}
     <div class="field"><label class="lbl" for="r-comments">Observações <span class="opt">(opcional)</span></label><textarea id="r-comments" data-in="r-comments" rows="2" placeholder="Ex.: fiquei doente uma semana">${esc(m.comments || '')}</textarea></div>
   </section>`;
   h += `<section class="card"><h2>O que vai na mensagem</h2><div class="checks">${checkBtn('hours', 'Horas', incHours)}${checkBtn('studies', 'Estudos', S.report.studies)}${checkBtn('details', 'Detalhes', S.report.details)}${checkBtn('goal', 'Meta', S.report.goal)}</div>
@@ -1298,8 +1298,6 @@ function renderSettings() {
     <button class="btn btn-secondary" data-act="open-service">${ic('pencil')}Mudar serviço ou meta</button>
     <p class="hint">Dá para mudar só um mês (por exemplo, quando for pioneiro auxiliar) ou de um mês em diante.</p>
     <button class="link" data-act="setup-redo">Refazer a pergunta do começo (desde quando serve e horas não anotadas)</button></section>`;
-  if (plan.role === 'publicador') h += `<section class="card"><h2>${ic('send')}Aba Relatório</h2><p>Publicador não precisa informar horas, por isso a aba Relatório fica escondida. Se quiser mandar o relatório (participação e estudos) pelo WhatsApp com o app, é só mostrar a aba.</p>
-    <div class="seg" role="group" aria-label="Aba Relatório"><button data-act="pub-report" data-v="0" aria-pressed="${!S.settings.pubReport}">Esconder</button><button data-act="pub-report" data-v="1" aria-pressed="${!!S.settings.pubReport}">Mostrar</button></div></section>`;
   h += `<section class="card"><h2>${ic('map')}Territórios</h2><p>Guarde o mapa de cada território e marque em qual você pregou de casa em casa.</p>
     <div class="seg" role="group" aria-label="Usar territórios"><button data-act="terr-toggle" data-v="0" aria-pressed="${!terrOn()}">Desligado</button><button data-act="terr-toggle" data-v="1" aria-pressed="${terrOn()}">Ligado</button></div>
     ${terrOn() ? `<button class="btn btn-secondary" data-act="open-terrs">${ic('map')}Abrir meus territórios</button>${mapKeyHtml()}` : ''}</section>`;
@@ -1332,7 +1330,7 @@ function renderWelcome() {
       <button class="btn btn-primary" data-act="ob-next">Continuar${ic('chev-r')}</button>
       <div class="alt"><button class="btn btn-ghost" data-act="demo">${ic('eye')}Ver um exemplo antes</button><button class="btn btn-ghost" data-act="restore">${ic('upload')}Tenho uma cópia de segurança</button></div>`;
   } else if (OB.step === 2) {
-    h += `<h1>Como você serve?</h1><p class="lead">Escolha a sua forma de servir agora. Dá para mudar depois, quando quiser.</p>${dots}
+    h += `<h1>Como você serve?</h1><p class="lead">Escolha o seu tipo de pioneiro. Dá para mudar depois, quando quiser.</p>${dots}
       <div class="opts">${ROLE_ORDER.map(r => optBtn('ob-role', r, roleLabel(r, OB.g), ROLES[r].desc, OB.role === r)).join('')}</div>
       ${OB.err ? `<p class="err" role="alert">${OB.err}</p>` : ''}
       <button class="btn btn-primary" data-act="ob-next">Continuar${ic('chev-r')}</button><button class="btn btn-ghost" data-act="ob-back">${ic('chev-l')}Voltar</button>`;
@@ -1380,10 +1378,10 @@ function entrySheetHtml() {
     <div class="time-row"><span class="lbl">Minutos</span><div class="stepper"><button class="icon-btn" data-act="t-m" data-d="-5" aria-label="Menos 5 minutos">${ic('minus')}</button><input id="f-m" data-in="m" inputmode="numeric" pattern="[0-9]*" maxlength="2" value="${pad(D.m)}" aria-label="Minutos"><button class="icon-btn" data-act="t-m" data-d="5" aria-label="Mais 5 minutos">${ic('plus')}</button></div></div>
     <div class="quick" role="group" aria-label="Atalhos de tempo">${[30, 60, 90, 120, 180].map(q => `<button class="qchip" data-act="quick" data-min="${q}" aria-pressed="${tot === q}">${fmtHM(q)}</button>`).join('')}</div>
     ${D.fromTimer ? `<p class="hint">${ic('timer', 'sm')} Tempo que veio do cronômetro.</p>` : ''}</section>`;
-  if (canCredit) b += `<section class="field"><h2 class="q">Que tipo de tempo é?</h2><div class="seg" role="group" aria-label="Tipo de tempo"><button data-act="credit" data-v="0" aria-pressed="${!D.credit}">Pregação</button><button data-act="credit" data-v="1" aria-pressed="${!!D.credit}">Horas de crédito</button></div>
+  if (canCredit) b += `<section class="field"><h2 class="q">Que tipo de tempo é?</h2><div class="seg" role="group" aria-label="Tipo de tempo"><button data-act="credit" data-v="0" aria-pressed="${!D.credit}">Pregação</button><button data-act="credit" data-v="1" aria-pressed="${!!D.credit}">Atividade teocrática</button></div>
     ${D.credit
-      ? `<p class="hint">Qual foi a atividade?</p><div class="opts">${CREDIT_TYPES.map(c => optBtn('credit-type', c.id, c.label, c.sub, D.creditType === c.id)).join('')}</div><p class="hint">O crédito fica à parte: não entra na conta da meta e vai separado no relatório, com o nome da atividade.</p>`
-      : '<p class="hint">Horas de crédito são de atividades teocráticas: obra ou manutenção, cursos do LDC, commuter, Betel, socorro em desastres e escolas.</p>'}</section>`;
+      ? `<p class="hint">Qual foi a atividade?</p><div class="opts">${CREDIT_TYPES.map(c => optBtn('credit-type', c.id, c.label, c.sub, D.creditType === c.id)).join('')}</div><p class="hint">Fica à parte da pregação: não entra na conta da meta e vai separada no relatório, como crédito, com o nome da atividade.</p>`
+      : '<p class="hint">Atividade teocrática é obra ou manutenção, curso do LDC, commuter, Betel, socorro em desastres ou escola. Conta como horas de crédito, à parte da pregação.</p>'}</section>`;
   if (!D.credit) {
     b += `<section class="field"><h2 class="q">O que você fez? <span class="opt">(pode marcar mais de um)</span></h2><div class="chips">${ACTS.map(a => { const on = D.acts.includes(a.id); return `<button class="chip" data-act="act" data-id="${a.id}" aria-pressed="${on}">${on ? ic('check-c') : ic(a.icon)}<span>${a.label}${a.sub ? `<small>${a.sub}</small>` : ''}</span></button>`; }).join('')}</div></section>`;
     if (terrOn() && D.acts.includes('campo')) b += terrPickHtml(D);
@@ -1406,9 +1404,9 @@ function studentsHtml(D) {
 function serviceSheetHtml() {
   const c = sheetCtx, ym = c.ym, g = S.profile ? S.profile.g : 'm';
   const cur = ymOf(todayStr());
-  let b = `<section class="field"><h2 class="q">Como você serve?</h2><div class="opts">${ROLE_ORDER.map(r => optBtn('svc-role', r, roleLabel(r, g), ROLES[r].desc, c.role === r)).join('')}</div></section>`;
+  let b = `<section class="field"><h2 class="q">Como você serve?</h2><div class="opts">${ROLE_ORDER.map(r => optBtn('svc-role', r, roleLabel(r, g), ROLES[r].desc, c.role === r)).join('')}${optBtn('svc-role', 'publicador', `Não sou ${g === 'f' ? 'pioneira' : 'pioneiro'} neste período`, `Para os meses em que você não for ${g === 'f' ? 'pioneira' : 'pioneiro'}. Fica sem meta e o relatório não leva horas.`, c.role === 'publicador')}</div></section>`;
   if (c.role === 'auxiliar') b += `<section class="field"><h2 class="q">Meta do pioneiro auxiliar</h2><div class="seg" role="group" aria-label="Meta do pioneiro auxiliar"><button data-act="svc-aux" data-v="30" aria-pressed="${c.goal === 30}">30 horas</button><button data-act="svc-aux" data-v="15" aria-pressed="${c.goal === 15}">15 horas</button></div><p class="hint">Use 15 horas só nos meses em que os anciãos anunciarem essa opção, como na época da Celebração, em campanhas especiais ou na visita do superintendente de circuito.</p></section>`;
-  b += `<section class="field"><h2 class="q">Meta de horas por mês</h2>${goalStepper('svc-goal', c.goal)}<p class="hint">${goalHint(c.role)}</p></section>`;
+  if (c.role !== 'publicador') b += `<section class="field"><h2 class="q">Meta de horas por mês</h2>${goalStepper('svc-goal', c.goal)}<p class="hint">${goalHint(c.role)}</p></section>`;
   b += `<section class="field"><h2 class="q">A partir de qual mês?</h2><div class="pnav"><button class="icon-btn" data-act="svc-ym" data-d="-1" aria-label="Mês anterior"${ym > ymAdd(cur, -36) ? '' : ' disabled'}>${ic('chev-l')}</button><div class="pnav-t"><b>${cap(monthLabel(ym))}</b><span>${ym === cur ? 'Este mês' : ym < cur ? 'Mês que já passou' : 'Mês que ainda vai chegar'}</span></div><button class="icon-btn" data-act="svc-ym" data-d="1" aria-label="Próximo mês"${ym < ymAdd(cur, 12) ? '' : ' disabled'}>${ic('chev-r')}</button></div></section>`;
   b += `<section class="field"><h2 class="q">Vale para</h2><div class="opts">${optBtn('svc-scope', 'from', `De ${monthLabel(ym, false)} em diante`, 'Os próximos meses também usam esta meta.', !c.only)}${optBtn('svc-scope', 'only', `Só ${monthLabel(ym)}`, 'Depois volta a ser como era antes.', c.only)}</div></section>`;
   return sheetFrame('Serviço e meta', b, `<button class="btn btn-primary" data-act="svc-save">${ic('check')}Salvar</button>`);
@@ -1464,7 +1462,7 @@ function saveEntry() {
   closeSheet();
   setTimeout(() => {
     if (goal && before < goal && after >= goal && !S.celebrated[ym] && ym === ymOf(todayStr())) { S.celebrated[ym] = 1; save(); celebrate(ym); }
-    else toast(edited ? 'Registro atualizado.' : min ? (D.credit ? `Pronto! ${fmtHM(min)} de crédito registrados, à parte da meta.` : `Pronto! ${fmtHM(min)} registrados.`) : 'Registro salvo.');
+    else toast(edited ? 'Registro atualizado.' : min ? (D.credit ? `Pronto! ${fmtHM(min)} de atividade teocrática registradas, à parte da meta.` : `Pronto! ${fmtHM(min)} registrados.`) : 'Registro salvo.');
   }, 80);
 }
 function deleteEntry() {
@@ -2762,7 +2760,6 @@ const A = {
     if (el.dataset.v === 'yes') backfillDialog(); else toast('Tudo certo! É só ir anotando a pregação.');
   },
   'setup-redo': () => { S.setup = { done: false, at: 0, start: null }; SU.step = 'ask'; SU.start = null; save(); tabTo('inicio'); window.scrollTo(0, 0); },
-  'pub-report': el => { S.settings.pubReport = el.dataset.v === '1'; save(); render(); toast(S.settings.pubReport ? 'A aba Relatório apareceu lá embaixo.' : 'A aba Relatório foi escondida.'); },
   'svc-ym': el => { const c = sheetCtx, cur = ymOf(todayStr()), n = ymAdd(c.ym, +el.dataset.d); if (n >= ymAdd(cur, -36) && n <= ymAdd(cur, 12)) { c.ym = n; renderSheet(); } },
   restore: () => {
     if (inFrame) dialog({ title: 'Restaurar uma cópia', html: '<p>Escolha o arquivo da cópia ou cole o texto dela.</p>', actions: [{ label: 'Escolher arquivo', kind: 'btn-primary', fn: () => $('#file-restore').click() }, { label: 'Colar o texto', fn: pasteDialog }, { label: 'Cancelar', kind: 'btn-ghost' }] });
@@ -2777,7 +2774,7 @@ const A = {
       { label: 'Não, voltar' }] }) },
     { label: 'Cancelar', kind: 'btn-ghost' }] }),
   'open-service': el => { const ym = el.dataset.ym || ymOf(todayStr()), p = planFor(ym); openSheet('servico', { ym, role: p.role, goal: p.goal, only: false }); },
-  'svc-role': el => { const c = sheetCtx; c.role = el.dataset.v; c.goal = ROLES[c.role].goal; renderSheet(); },
+  'svc-role': el => { const c = sheetCtx; c.role = el.dataset.v; c.goal = c.role === 'publicador' ? 0 : ROLES[c.role].goal; renderSheet(); },
   'svc-aux': el => { sheetCtx.goal = +el.dataset.v; renderSheet(); },
   'svc-goal': el => { const c = sheetCtx; c.goal = el.dataset.set != null ? +el.dataset.set : clamp(c.goal + +el.dataset.d, 0, 300); renderSheet(); },
   'svc-scope': el => { sheetCtx.only = el.dataset.v === 'only'; renderSheet(); },
