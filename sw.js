@@ -1,5 +1,5 @@
 /* Minha Pregação: guarda o app no celular para abrir sem internet. */
-const VERSAO = 'minha-pregacao-v3';
+const VERSAO = 'minha-pregacao-v4';
 const FONTES = 'minha-pregacao-fontes';
 const RECEBIDOS = 'minha-pregacao-recebidos';
 const ARQUIVOS = [
@@ -48,10 +48,11 @@ self.addEventListener('fetch', event => {
   // Chave do mapa: sempre busca na internet, para valer logo depois que for trocada no site.
   if (url.origin === self.location.origin && url.pathname.endsWith('/chave-mapa.txt')) return;
 
-  // Páginas: tenta a internet primeiro (para receber atualizações); sem internet, usa a cópia guardada.
+  // Páginas: tenta a internet primeiro (sem cache velho, para receber atualizações na hora); sem internet, usa a cópia guardada.
   if (req.mode === 'navigate') {
     event.respondWith(
-      fetch(req)
+      fetch(req, { cache: 'no-cache' })
+        .catch(() => fetch(req))
         .then(res => {
           if (res.ok) { const copy = res.clone(); caches.open(VERSAO).then(c => c.put('./index.html', copy)); }
           return res;

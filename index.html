@@ -382,6 +382,9 @@ body.has-viewer { overflow: hidden; }
 @keyframes pulse { 50% { opacity: .35; } }
 .timer-clock { font-size: 2.6rem; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: .02em; line-height: 1.1; }
 .btn:disabled { opacity: .45; cursor: default; transform: none; }
+.credit-list { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 4px; }
+.credit-list li { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.credit-list li:last-child { border-bottom: 0; }
 
 /* Mapa dos territórios */
 body.has-map { overflow: hidden; }
@@ -509,13 +512,13 @@ body.has-map { overflow: hidden; }
 
 /* ================= Dados fixos ================= */
 const KEY = 'minhaPregacao.v1';
-const VERSION = '1.0';
+const VERSION = '1.2';
 const inFrame = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
 
 const ROLES = {
   publicador:  { m: 'Publicador', f: 'Publicadora', goal: 10, req: 0, hours: false, credit: false,
                  desc: 'Sem horas obrigatórias. A meta de horas é só sua.' },
-  auxiliar:    { m: 'Pioneiro auxiliar', f: 'Pioneira auxiliar', goal: 30, req: 30, hours: true, credit: false,
+  auxiliar:    { m: 'Pioneiro auxiliar', f: 'Pioneira auxiliar', goal: 30, req: 30, hours: true, credit: true,
                  desc: '30 horas no mês, ou 15 horas nos meses que os anciãos anunciarem.' },
   regular:     { m: 'Pioneiro regular', f: 'Pioneira regular', goal: 50, req: 50, hours: true, credit: true,
                  desc: '600 horas no ano de serviço, mais ou menos 50 horas por mês.' },
@@ -535,11 +538,17 @@ const ACTS = [
 ];
 const ACT = {};
 ACTS.forEach(a => { ACT[a.id] = a; });
+/* Horas de crédito: atividades teocráticas (obra, LDC, commuter, Betel, socorro, escolas).
+   Ficam à parte: não entram na conta da meta e vão separadas no relatório, com o tipo de atividade. */
 const CREDIT_TYPES = [
-  { id: 'construcao', label: 'Construção ou manutenção' },
-  { id: 'socorro', label: 'Socorro humanitário' },
-  { id: 'betel', label: 'Betel ou escola' },
-  { id: 'outro', label: 'Outra atividade' }
+  { id: 'construcao', label: 'Obra ou manutenção', sub: 'Salão do Reino, Salão de Assembleias ou projeto do LDC' },
+  { id: 'curso-ldc', label: 'Curso do LDC', sub: 'Treinamento para voluntários' },
+  { id: 'commuter', label: 'Commuter', sub: 'Voluntário que vai e volta (Betel ou LDC)' },
+  { id: 'remoto', label: 'Voluntário remoto', sub: 'Trabalho para Betel ou para o LDC feito de casa' },
+  { id: 'betel', label: 'Betel', sub: 'Voluntário temporário' },
+  { id: 'socorro', label: 'Socorro em desastres', sub: '' },
+  { id: 'escola', label: 'Escola teocrática', sub: 'Escola do Serviço de Pioneiro e outras escolas' },
+  { id: 'outro', label: 'Outra atividade aprovada', sub: 'Escreva qual foi na anotação' }
 ];
 const COUNTERS = [
   { k: 'pubs', label: 'Publicações', icon: 'pub', short: 'publicações', one: 'publicação' },
@@ -700,11 +709,25 @@ function monthEntries(ym) { const r = monthRange(ym); return entriesBetween(r[0]
 const sumMin = list => list.reduce((s, e) => s + (e.min || 0), 0);
 function groupByDate(list) { const o = {}; list.forEach(e => { (o[e.date] = o[e.date] || []).push(e); }); return o; }
 function extraMin(ym) { const m = S.months[ym]; return m && +m.extra > 0 ? +m.extra : 0; }
-function baseMonth(ym) { return sumMin(monthEntries(ym)) + extraMin(ym); }
-function carryOut(ym, depth) { depth = depth || 0; if (!(S.months[ym] && S.months[ym].carry) || depth > 36) return 0; return (baseMonth(ym) + carryOut(ymAdd(ym, -1), depth + 1)) % 60; }
+function fieldMonth(ym) { return monthEntries(ym).reduce((a, e) => a + (e.credit ? 0 : e.min || 0), 0) + extraMin(ym); }
+function carryOut(ym, depth) { depth = depth || 0; if (!(S.months[ym] && S.months[ym].carry) || depth > 36) return 0; return (fieldMonth(ym) + carryOut(ymAdd(ym, -1), depth + 1)) % 60; }
 function carryIn(ym) { return carryOut(ymAdd(ym, -1)); }
-function monthTotal(ym) { return baseMonth(ym) + carryIn(ym) - carryOut(ym); }
-function creditMin(ym) { return monthEntries(ym).filter(e => e.credit).reduce((a, e) => a + e.min, 0); }
+function fieldTotal(ym) { return fieldMonth(ym) + carryIn(ym) - carryOut(ym); }
+function creditInfo(ym) {
+  const by = {}, notes = [];
+  let total = 0;
+  monthEntries(ym).forEach(e => {
+    if (!e.credit) return;
+    total += e.min;
+    by[e.creditType] = (by[e.creditType] || 0) + e.min;
+    if (e.creditType === 'outro' && e.note.trim()) notes.push(e.note.trim());
+  });
+  return { total, by, notes };
+}
+function creditMin(ym) { return creditInfo(ym).total; }
+const fieldOf = list => list.reduce((a, e) => a + (e.credit ? 0 : e.min || 0), 0);
+// A meta conta só as horas de pregação. O crédito fica à parte.
+function monthTotal(ym) { return fieldTotal(ym); }
 function studentsOf(list) {
   const map = new Map();
   list.forEach(e => { if (e.acts.includes('estudo')) e.students.forEach(n => { const k = normName(n); if (k && !map.has(k)) map.set(k, n.trim()); }); });
@@ -754,7 +777,7 @@ function buildReport(ym) {
   const p = S.profile || { name: '' }, plan = planFor(ym), role = ROLES[plan.role];
   const m = S.months[ym] || {}, list = monthEntries(ym);
   const part = m.participated != null ? m.participated : list.length > 0 || extraMin(ym) > 0;
-  const total = monthTotal(ym), hours = Math.floor(total / 60), credit = creditMin(ym);
+  const total = monthTotal(ym), hours = Math.floor(fieldTotal(ym) / 60), ci = creditInfo(ym);
   const o = S.report, incHours = o.hours != null ? o.hours : role.hours;
   const L = [];
   L.push('*RELATÓRIO DE SERVIÇO DE CAMPO*');
@@ -763,7 +786,14 @@ function buildReport(ym) {
   L.push('');
   L.push(part ? '✅ Participei de alguma forma da pregação neste mês' : '❌ Não participei da pregação neste mês');
   if (o.studies) L.push(`📖 Estudos bíblicos: *${reportStudies(ym)}*`);
-  if (incHours) L.push(`⏱️ Horas: *${hours}*${credit > 0 ? ` _(${fmtHM(total - credit)} de pregação + ${fmtHM(credit)} de crédito)_` : ''}`);
+  if (incHours) {
+    L.push(`⏱️ Horas${ci.total ? ' de pregação' : ''}: *${hours}*`);
+    if (ci.total) {
+      L.push(`🏗️ Horas de crédito: *${fmtHM(ci.total)}*`);
+      CREDIT_TYPES.forEach(c => { if (ci.by[c.id]) L.push(`   • ${c.label}: ${fmtHM(ci.by[c.id])}${c.id === 'outro' && ci.notes.length ? ` (${ci.notes.join('; ').slice(0, 160)})` : ''}`); });
+      Object.keys(ci.by).forEach(k => { if (!CREDIT_TYPES.some(c => c.id === k)) L.push(`   • Crédito: ${fmtHM(ci.by[k])}`); });
+    }
+  }
   if (o.goal && plan.goal) {
     const gm = plan.goal * 60, pct = Math.round(total / gm * 100);
     L.push(total >= gm ? `🎯 Meta do mês: ${plan.goal}h, alcançada (${pct}%)` : `🎯 Meta do mês: ${plan.goal}h, cheguei a ${pct}%`);
@@ -945,6 +975,7 @@ function renderHome() {
     ${goalMin ? `${meterHtml(total, goalMin)}<div class="hero-row"><span>${pct}% da meta</span>${reached ? `<span>${ic('check', 'sm')}Alcançada</span>` : ''}</div>` : ''}
     <p class="pace">${pace}</p>
     ${cin ? `<p class="hint on-hero">Inclui ${fmtHM(cin)} que vieram de ${monthLabel(prev, false)}.</p>` : ''}
+    ${creditMin(cur) ? `<p class="hint on-hero">+ ${fmtHM(creditMin(cur))} de crédito de horas, à parte (não entra na meta).</p>` : ''}
   </section>`;
   h += `<button class="btn btn-primary big-cta" data-act="add">${ic('plus')}Registrar pregação</button>`;
   h += timerHtml();
@@ -1004,6 +1035,7 @@ function yearCardHtml(cur) {
     ${meterHtml(y.done, y.req)}
     <p>${y.done >= y.req ? 'Requisito do ano alcançado!' : `Para chegar nas ${y.req / 60}h até ${monthLabel(last, false)}, faça mais ou menos <b>${Math.ceil(per / 60)}h por mês</b> (de ${monthLabel(cur, false)} até ${monthLabel(last, false)}).`}</p>
     ${prop}<p class="hint">${Math.round(y.done / y.req * 100)}% do ano · setembro de ${y.sy - 1} a agosto de ${y.sy}</p>
+    ${(() => { const c = y.ms.filter(m => m <= cur).reduce((a, m) => a + creditMin(m), 0); return c ? `<p class="hint">Fora isso, ${fmtHM(c)} de crédito de horas no ano, à parte.</p>` : ''; })()}
     <button class="link" data-act="backfill">Lançar horas de meses anteriores</button></section>`;
 }
 function timerHtml() {
@@ -1070,7 +1102,7 @@ function entriesCardHtml(list) {
 }
 function histDay(P) {
   const list = entriesBetween(P.from, P.to), sm = summarize(list);
-  let h = `<section class="card"><span class="k">Total do dia</span><div class="sum-big">${fmtHM(sm.min)}</div>${sm.credit ? `<p class="hint">Inclui ${fmtHM(sm.credit)} de crédito de horas.</p>` : ''}</section>`;
+  let h = `<section class="card"><span class="k">Pregação no dia</span><div class="sum-big">${fmtHM(sm.min - sm.credit)}</div>${sm.credit ? `<p class="hint">Fora isso, ${fmtHM(sm.credit)} de crédito de horas, à parte.</p>` : ''}</section>`;
   if (list.length) h += `<section class="card"><h2>Registros</h2><p class="hint">Toque num registro para mudar ou apagar.</p><div class="entries">${list.slice().sort((a, b) => a.createdAt - b.createdAt).map(e => entryRow(e, false)).join('')}</div></section>`;
   else h += `<section class="card"><p class="muted">Nada registrado neste dia.</p></section>`;
   h += `<button class="btn btn-primary" data-act="add" data-date="${P.from}">${ic('plus')}Registrar neste dia</button>`;
@@ -1080,18 +1112,18 @@ function histDay(P) {
 }
 function histWeek(P) {
   const t = todayStr(), days = Array.from({ length: 7 }, (_, i) => addDays(P.from, i));
-  const list = entriesBetween(P.from, P.to), by = groupByDate(list), vals = days.map(d => sumMin(by[d] || [])), sm = summarize(list);
+  const list = entriesBetween(P.from, P.to), by = groupByDate(list), vals = days.map(d => fieldOf(by[d] || [])), sm = summarize(list);
   const avgDay = sm.days ? (sm.min - sm.credit) / sm.days : 0;
   const def = P.isCurrent ? days.indexOf(t) : argMax(vals), sel = H.sel != null && H.sel < 7 ? H.sel : def;
-  let h = `<section class="card"><span class="k">Total da semana</span><div class="sum-big">${fmtHM(sm.min)}</div>
+  let h = `<section class="card"><span class="k">Pregação na semana</span><div class="sum-big">${fmtHM(sm.min - sm.credit)}</div>
     <div class="kpis"><div><span>Dias de pregação</span><b>${sm.days} de 7</b></div><div><span>Média por dia de pregação</span><b>${sm.days ? fmtHM(Math.round(avgDay)) : '—'}</b></div></div>
-    ${sm.credit ? `<p class="hint">Inclui ${fmtHM(sm.credit)} de crédito de horas.</p>` : ''}</section>`;
-  h += chartCard({ title: 'Horas por dia', unit: 'dia', values: vals, labels: days.map(d => cap(WD_SHORT[parseYmd(d).getDay()])), sub: days.map(d => String(parseYmd(d).getDate())), muted: days.map(d => d > t), sel, read: i => cap(dateLong(days[i])), rows: days.map((d, i) => [cap(dateLong(d)), fmtHM(vals[i])]) });
+    ${sm.credit ? `<p class="hint">Fora isso, ${fmtHM(sm.credit)} de crédito de horas, à parte.</p>` : ''}</section>`;
+  h += chartCard({ title: 'Horas de pregação por dia', unit: 'dia', values: vals, labels: days.map(d => cap(WD_SHORT[parseYmd(d).getDay()])), sub: days.map(d => String(parseYmd(d).getDate())), muted: days.map(d => d > t), sel, read: i => cap(dateLong(days[i])), rows: days.map((d, i) => [cap(dateLong(d)), fmtHM(vals[i])]) });
   return h + actsHtml(sm) + deliveriesHtml(sm, 'Entregas e estudos') + entriesCardHtml(list);
 }
 function histMonth(P) {
   const t = todayStr(), ym = P.ym, dim = daysInMonth(ym), days = Array.from({ length: dim }, (_, i) => `${ym}-${pad(i + 1)}`);
-  const list = entriesBetween(P.from, P.to), by = groupByDate(list), vals = days.map(d => sumMin(by[d] || [])), sm = summarize(list);
+  const list = entriesBetween(P.from, P.to), by = groupByDate(list), vals = days.map(d => fieldOf(by[d] || [])), sm = summarize(list);
   const plan = planFor(ym), total = monthTotal(ym), goalMin = plan.goal * 60, cin = carryIn(ym), cout = carryOut(ym);
   const elapsed = P.isCurrent ? parseYmd(t).getDate() : dim, perWeek = total / Math.max(1, elapsed / 7);
   const avgDay = sm.days ? (sm.min - sm.credit) / sm.days : 0;
@@ -1103,7 +1135,7 @@ function histMonth(P) {
   let h = `<section class="card"><div class="sum-head"><div><span class="k">Total do mês</span><div class="sum-big">${fmtHM(total)}</div></div><button class="pill2" data-act="open-service" data-ym="${ym}">${esc(roleLabel(plan.role))}<br>${plan.goal ? `meta ${plan.goal}h` : 'sem meta'}${ic('pencil', 'sm')}</button></div>
     ${goalMin ? meterHtml(total, goalMin) : ''}${status}
     <div class="kpis"><div><span>Dias de pregação</span><b>${sm.days}</b></div><div><span>Média por dia de pregação</span><b>${sm.days ? fmtHM(Math.round(avgDay)) : '—'}</b></div><div><span>Média por semana</span><b>${fmtHM(Math.round(perWeek))}</b></div></div>
-    ${sm.credit ? `<p class="hint">Inclui ${fmtHM(sm.credit)} de crédito de horas.</p>` : ''}
+    ${sm.credit ? `<p class="hint">Fora isso, ${fmtHM(sm.credit)} de crédito de horas, à parte (não entra na meta).</p>` : ''}
     ${extraMin(ym) ? `<p class="hint">Inclui ${fmtHM(extraMin(ym))} lançadas sem detalhes. <button class="link" data-act="backfill">Mudar</button></p>` : ''}
     ${cin ? `<p class="hint">Inclui ${fmtHM(cin)} que vieram de ${monthLabel(ymAdd(ym, -1), false)}.</p>` : ''}
     ${cout ? `<p class="hint">${fmtHM(cout)} passaram para ${monthLabel(ymAdd(ym, 1), false)}.</p>` : ''}</section>`;
@@ -1216,7 +1248,7 @@ function renderReport() {
   if (!R.ym || R.ym > cur) R.ym = defaultReportMonth();
   const ym = R.ym, m = S.months[ym] || {}, plan = planFor(ym), role = ROLES[plan.role], list = monthEntries(ym);
   const part = m.participated != null ? m.participated : list.length > 0 || extraMin(ym) > 0;
-  const total = monthTotal(ym), hours = Math.floor(total / 60), credit = creditMin(ym);
+  const field = fieldTotal(ym), hours = Math.floor(field / 60), ci = creditInfo(ym);
   const incHours = S.report.hours != null ? S.report.hours : role.hours;
   let h = `<header class="page-head"><h1>Relatório</h1><p class="muted">Confira os números e envie pelo WhatsApp.</p></header>`;
   h += `<div class="pnav"><button class="icon-btn" data-act="r-prev" aria-label="Mês anterior">${ic('chev-l')}</button><div class="pnav-t"><b>${cap(monthLabel(ym))}</b><span>${esc(roleLabel(plan.role))}</span></div><button class="icon-btn" data-act="r-next" aria-label="Próximo mês"${ym < cur ? '' : ' disabled'}>${ic('chev-r')}</button></div>`;
@@ -1225,8 +1257,11 @@ function renderReport() {
   h += `<section class="card">
     <div class="field"><span class="lbl">Participou da pregação neste mês?</span><div class="seg" role="group" aria-label="Participou"><button data-act="r-part" data-v="1" aria-pressed="${!!part}">Sim</button><button data-act="r-part" data-v="0" aria-pressed="${!part}">Não</button></div></div>
     <div class="field"><span class="lbl">Estudos bíblicos</span><div class="stepper"><button class="icon-btn" data-act="r-st" data-d="-1" aria-label="Menos um estudo">${ic('minus')}</button><output class="val" aria-live="polite">${reportStudies(ym)}</output><button class="icon-btn" data-act="r-st" data-d="1" aria-label="Mais um estudo">${ic('plus')}</button></div><p class="hint">${studiesHint(studentsOf(list), unnamedStudyCount(list), m)}</p></div>
-    <div class="field"><span class="lbl">Horas${role.hours ? '' : ' <span class="opt">(publicador não precisa informar)</span>'}</span><div class="hours-big">${hours}<small>${hours === 1 ? 'hora' : 'horas'}</small></div>
-      <p class="hint">Total certinho: ${fmtHM(total)}${credit ? `, com ${fmtHM(credit)} de crédito` : ''}${extraMin(ym) ? `, com ${fmtHM(extraMin(ym))} lançadas sem detalhes` : ''}. O relatório usa só horas inteiras.</p>${carryHtml(ym, total, m, incHours)}</div>
+    <div class="field"><span class="lbl">Horas${ci.total ? ' de pregação' : ''}${role.hours ? '' : ' <span class="opt">(publicador não precisa informar)</span>'}</span><div class="hours-big">${hours}<small>${hours === 1 ? 'hora' : 'horas'}</small></div>
+      <p class="hint">Total certinho: ${fmtHM(field)}${extraMin(ym) ? `, com ${fmtHM(extraMin(ym))} lançadas sem detalhes` : ''}. O relatório usa só horas inteiras.</p>${carryHtml(ym, field, m, incHours)}</div>
+    ${ci.total ? `<div class="field"><span class="lbl">Horas de crédito</span><div class="hours-big">${fmtHM(ci.total)}</div>
+      <ul class="credit-list">${CREDIT_TYPES.filter(c => ci.by[c.id]).map(c => `<li><span>${esc(c.label)}</span><b>${fmtHM(ci.by[c.id])}</b></li>`).join('')}</ul>
+      <p class="hint">No relatório, o crédito vai separado das horas de pregação, com o tipo de atividade. Ele não entra na conta da meta.</p></div>` : ''}
     <div class="field"><label class="lbl" for="r-comments">Observações <span class="opt">(opcional)</span></label><textarea id="r-comments" data-in="r-comments" rows="2" placeholder="Ex.: fiquei doente uma semana">${esc(m.comments || '')}</textarea></div>
   </section>`;
   h += `<section class="card"><h2>O que vai na mensagem</h2><div class="checks">${checkBtn('hours', 'Horas', incHours)}${checkBtn('studies', 'Estudos', S.report.studies)}${checkBtn('details', 'Detalhes', S.report.details)}${checkBtn('goal', 'Meta', S.report.goal)}</div>
@@ -1344,8 +1379,10 @@ function entrySheetHtml() {
     <div class="time-row"><span class="lbl">Minutos</span><div class="stepper"><button class="icon-btn" data-act="t-m" data-d="-5" aria-label="Menos 5 minutos">${ic('minus')}</button><input id="f-m" data-in="m" inputmode="numeric" pattern="[0-9]*" maxlength="2" value="${pad(D.m)}" aria-label="Minutos"><button class="icon-btn" data-act="t-m" data-d="5" aria-label="Mais 5 minutos">${ic('plus')}</button></div></div>
     <div class="quick" role="group" aria-label="Atalhos de tempo">${[30, 60, 90, 120, 180].map(q => `<button class="qchip" data-act="quick" data-min="${q}" aria-pressed="${tot === q}">${fmtHM(q)}</button>`).join('')}</div>
     ${D.fromTimer ? `<p class="hint">${ic('timer', 'sm')} Tempo que veio do cronômetro.</p>` : ''}</section>`;
-  if (canCredit) b += `<section class="field"><h2 class="q">Que tipo de tempo é?</h2><div class="seg" role="group" aria-label="Tipo de tempo"><button data-act="credit" data-v="0" aria-pressed="${!D.credit}">Pregação</button><button data-act="credit" data-v="1" aria-pressed="${!!D.credit}">Crédito de horas</button></div>
-    ${D.credit ? `<div class="opts">${CREDIT_TYPES.map(c => optBtn('credit-type', c.id, c.label, '', D.creditType === c.id)).join('')}</div><p class="hint">Crédito é o tempo de atividades que contam para a meta de pioneiro, como construção ou socorro humanitário.</p>` : ''}</section>`;
+  if (canCredit) b += `<section class="field"><h2 class="q">Que tipo de tempo é?</h2><div class="seg" role="group" aria-label="Tipo de tempo"><button data-act="credit" data-v="0" aria-pressed="${!D.credit}">Pregação</button><button data-act="credit" data-v="1" aria-pressed="${!!D.credit}">Horas de crédito</button></div>
+    ${D.credit
+      ? `<p class="hint">Qual foi a atividade?</p><div class="opts">${CREDIT_TYPES.map(c => optBtn('credit-type', c.id, c.label, c.sub, D.creditType === c.id)).join('')}</div><p class="hint">O crédito fica à parte: não entra na conta da meta e vai separado no relatório, com o nome da atividade.</p>`
+      : '<p class="hint">Horas de crédito são de atividades teocráticas: obra ou manutenção, cursos do LDC, commuter, Betel, socorro em desastres e escolas.</p>'}</section>`;
   if (!D.credit) {
     b += `<section class="field"><h2 class="q">O que você fez? <span class="opt">(pode marcar mais de um)</span></h2><div class="chips">${ACTS.map(a => { const on = D.acts.includes(a.id); return `<button class="chip" data-act="act" data-id="${a.id}" aria-pressed="${on}">${on ? ic('check-c') : ic(a.icon)}<span>${a.label}${a.sub ? `<small>${a.sub}</small>` : ''}</span></button>`; }).join('')}</div></section>`;
     if (terrOn() && D.acts.includes('campo')) b += terrPickHtml(D);
@@ -1426,7 +1463,7 @@ function saveEntry() {
   closeSheet();
   setTimeout(() => {
     if (goal && before < goal && after >= goal && !S.celebrated[ym] && ym === ymOf(todayStr())) { S.celebrated[ym] = 1; save(); celebrate(ym); }
-    else toast(edited ? 'Registro atualizado.' : min ? `Pronto! ${fmtHM(min)} registrados.` : 'Registro salvo.');
+    else toast(edited ? 'Registro atualizado.' : min ? (D.credit ? `Pronto! ${fmtHM(min)} de crédito registrados, à parte da meta.` : `Pronto! ${fmtHM(min)} registrados.`) : 'Registro salvo.');
   }, 80);
 }
 function deleteEntry() {
@@ -1913,7 +1950,8 @@ function cleanKey(v) {
   s = s.split(/\s+/)[0] || '';
   return /^[A-Za-z0-9._~+/=-]{8,2000}$/.test(s) ? s : '';
 }
-function rawKey() { return String(S.settings.mapKey || S.settings.mapKeySite || ''); }
+const CHAVE_MAPA_APP = 'cb1_5d7h_1_441ba10ea64c2bc641545636'; // chave grátis da CARTO do Arthur (pode trocar em Ajustes)
+function rawKey() { return String(S.settings.mapKey || S.settings.mapKeySite || CHAVE_MAPA_APP || ''); }
 function tilesOk() { return !inFrame && !!rawKey(); }
 function tileSrc(z, x, y, hi) { return `${TILE_BASE}${z}/${x}/${y}${hi ? '@2x' : ''}.png?key=${encodeURIComponent(rawKey())}`; }
 function normArea(a) {
@@ -2204,7 +2242,7 @@ const M = { open: false, mode: 'view', sel: null, near: null, terrId: null, num:
 function openMap(mode, o) {
   if (M.open || V.open) return;
   o = o || {};
-  Object.assign(M, { open: true, mode, sel: o.sel || null, near: null, terrId: o.terrId || null, num: o.num || '', pts: (o.pts || []).map(p => p.slice()), orig: JSON.stringify(o.pts || []), undo: [], dirty: false, dragging: false, me: null, items: [], sp: null, note: null, after: '', locating: false, wantCenter: false });
+  Object.assign(M, { open: true, probe: null, probing: false, mode, sel: o.sel || null, near: null, terrId: o.terrId || null, num: o.num || '', pts: (o.pts || []).map(p => p.slice()), orig: JSON.stringify(o.pts || []), undo: [], dirty: false, dragging: false, me: null, items: [], sp: null, note: null, after: '', locating: false, wantCenter: false });
   hist('pushState', Object.assign({}, history.state || {}, { mapv: true, d: curDepth() + 1 }), (location.hash || '#inicio').slice(1));
   renderMapShell();
 }
@@ -2395,9 +2433,14 @@ function mapNote() {
   if (inFrame) { k = 'frame'; h = `<div class="banner small">${ic('info')}<div><span>Aqui na prévia as ruas do mapa não aparecem. No app instalado, o mapa aparece completo.</span></div></div>`; }
   else if (!rawKey() && demo) { k = 'demo'; h = `<div class="banner small">${ic('info')}<div><span>No exemplo, as ruas só aparecem depois que o mapa for ligado em Ajustes.</span></div></div>`; }
   else if (!rawKey()) { k = 'key'; h = `<div class="banner small warn">${ic('alert')}<div><span>O mapa com as ruas ainda não foi ligado.</span><button class="btn btn-secondary small" data-act="map-key">Ligar o mapa</button></div></div>`; }
-  else if (!m.loads && (m.fails >= 3 || navigator.onLine === false)) { k = 'fail'; h = `<div class="banner small warn">${ic('alert')}<div><span>${navigator.onLine === false ? 'Sem internet, as ruas do mapa não aparecem. Os territórios continuam aqui.' : 'As ruas do mapa não carregaram. Confira a internet. Se continuar, confira a chave do mapa em Ajustes.'}</span></div></div>`; }
+  else if (!m.loads && (m.fails >= 3 || navigator.onLine === false)) {
+    const off = navigator.onLine === false;
+    k = 'fail' + (M.probe ? ':' + M.probe.status : '');
+    h = `<div class="banner small warn">${ic('alert')}<div><span>${M.probe ? mapErrText(M.probe) : off ? mapErrText({ offline: true }) : 'As ruas do mapa não carregaram. Verificando o motivo...'}</span></div></div>`;
+    if (!off && !M.probe && !M.probing) { M.probing = true; probeTiles().then(r => { M.probing = false; M.probe = r; if (M.open) { if (r.ok) M.map.refreshTiles(); mapNote(); } }); }
+  }
   m.el.classList.toggle('nomap', !!k);
-  const at = $('#mp-attr'); if (at) at.hidden = !tilesOk() || k === 'fail';
+  const at = $('#mp-attr'); if (at) at.hidden = !tilesOk() || k.startsWith('fail');
   if (k === M.note) return;
   M.note = k;
   const el = $('#mp-note');
@@ -2471,10 +2514,49 @@ function checkNear(D) {
   });
 }
 function mapKeyHtml() {
-  const k = S.settings.mapKey ? 'manual' : S.settings.mapKeySite ? 'site' : '';
-  return `<div class="field"><span class="lbl">Mapa com as ruas</span>${k
-    ? `<p class="okline">${ic('check', 'sm')}Mapa ligado.</p>${k === 'manual' ? `<div class="row2"><button class="btn btn-secondary small" data-act="map-key">Trocar a chave</button><button class="btn btn-secondary small" data-act="map-key-del">Tirar a chave</button></div>` : ''}`
-    : `<p>Para ver as ruas no mapa, o app precisa de uma chave grátis do mapa. Quem cuida do app coloca a chave uma vez.</p><button class="btn btn-secondary small" data-act="map-key">Colar a chave do mapa</button>`}</div>`;
+  const k = S.settings.mapKey ? 'manual' : S.settings.mapKeySite ? 'site' : CHAVE_MAPA_APP ? 'app' : '';
+  let h = '<div class="field"><span class="lbl">Mapa com as ruas</span>';
+  if (k) {
+    h += `<p class="okline">${ic('check', 'sm')}Chave do mapa colocada${k === 'manual' ? ' neste celular' : ''}.</p>
+      <button class="btn btn-secondary small" data-act="map-test">${ic('map')}Testar o mapa</button><div id="map-test-out" aria-live="polite">${MT.html}</div>`;
+    h += k === 'manual'
+      ? `<div class="row2"><button class="btn btn-secondary small" data-act="map-key">Trocar a chave</button><button class="btn btn-secondary small" data-act="map-key-del">Tirar a chave</button></div>`
+      : '<button class="link" data-act="map-key">Usar outra chave do mapa</button>';
+  } else h += `<p>Para ver as ruas no mapa, o app precisa de uma chave grátis do mapa. Quem cuida do app coloca a chave uma vez.</p><button class="btn btn-secondary small" data-act="map-key">Colar a chave do mapa</button>`;
+  return h + '</div>';
+}
+const MT = { html: '' };
+async function probeTiles() {
+  if (navigator.onLine === false) return { ok: false, status: 0, offline: true };
+  const url = tileSrc(3, 2, 4, false);
+  try {
+    const r = await fetch(url, { mode: 'cors', cache: 'no-store', credentials: 'omit' });
+    return { ok: r.ok, status: r.status };
+  } catch (e) {
+    const ok = await new Promise(res => {
+      const i = new Image(), t = setTimeout(() => res(false), 12000);
+      i.onload = () => { clearTimeout(t); res(true); };
+      i.onerror = () => { clearTimeout(t); res(false); };
+      i.src = url;
+    });
+    return { ok, status: ok ? 200 : -1 };
+  }
+}
+function mapErrText(r) {
+  const host = esc(location.host || 'o endereço do app');
+  if (r.offline) return 'Sem internet agora, por isso as ruas do mapa não aparecem. Os territórios continuam aqui.';
+  if (r.status === 401 || r.status === 403) return `A CARTO recusou a chave do mapa (erro ${r.status}). Se você colocou restrição de site no painel da CARTO, ela tem que ser exatamente: <b>${host}</b>`;
+  if (r.status === 429) return 'O mapa passou do limite de uso deste mês. Ele volta a funcionar no mês que vem.';
+  if (r.status > 0) return `As ruas do mapa não carregaram (erro ${r.status}). Tente de novo mais tarde.`;
+  return `As ruas do mapa não carregaram. Confira a internet. Se ela estiver boa, confira no painel da CARTO se a restrição de site está exatamente assim: <b>${host}</b>`;
+}
+async function testMap() {
+  const show = () => { const o = $('#map-test-out'); if (o) o.innerHTML = MT.html; };
+  if (inFrame) { MT.html = '<p class="hint">Aqui na prévia do Claude o mapa não carrega. Faça o teste no app aberto pelo link.</p>'; show(); return; }
+  MT.html = '<p class="hint">Testando o mapa...</p>'; show();
+  const r = await probeTiles();
+  MT.html = r.ok ? `<p class="okline">${ic('check', 'sm')}O mapa está funcionando.</p>` : `<div class="banner small warn">${ic('alert')}<div><span>${mapErrText(r)}</span></div></div>`;
+  show();
 }
 function keyDialog() {
   dialog({ title: 'Chave do mapa', html: `<p>Cole aqui a chave grátis do mapa, que a CARTO manda por e-mail para quem pediu.</p><input class="txt" id="map-key-in" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Cole a chave aqui" aria-label="Chave do mapa"><p class="err" id="map-key-err" role="alert" hidden></p>`, actions: [
@@ -2626,6 +2708,7 @@ const A = {
     toast('Marque pelo menos 3 cantos do território.');
   },
   'map-key': () => keyDialog(),
+  'map-test': () => testMap(),
   'map-key-del': () => { S.settings.mapKey = ''; save(); render(); toast(rawKey() ? 'Chave tirada. O mapa continua ligado pelo site.' : 'Chave do mapa tirada deste celular.'); },
   'view-terr': el => openViewer(el.dataset.id, +el.dataset.i || 0),
   'viewer-close': () => { if (history.state && history.state.viewer) history.back(); else closeViewerUI(); },
